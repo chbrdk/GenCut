@@ -1018,8 +1018,7 @@
 
     <!-- Video Background -->
     <video class="video-background" autoplay muted loop playsinline>
-        <source src="/static/video2.mp4" type="video/mp4">
-        <!-- Fallback for browsers that don't support video -->
+        <!-- Video background removed - file not found -->
     </video>
 
     <!-- Slider Container -->
@@ -3759,14 +3758,16 @@
         if (svClosePanelBtn && svPanel) svClosePanelBtn.addEventListener('click', () => { svPanel.style.display = 'none'; });
 
         // When opening the modal, also populate voice list/current label
-        const oldOpenSv = openSoundVoiceModal;
-        openSoundVoiceModal = async function() {
+        const originalOpenSoundVoiceModal = window.openSoundVoiceModal;
+        window.openSoundVoiceModal = async function() {
             await ensureVoicesLoaded();
             const currentName = step3CurrentVoiceName || 'Standard Voice';
             const cur = document.getElementById('svVoiceCurrent');
             if (cur) cur.textContent = currentName;
             renderSvVoiceList();
-            oldOpenSv();
+            if (originalOpenSoundVoiceModal) {
+                originalOpenSoundVoiceModal();
+            }
         }
     </script>
 </body>

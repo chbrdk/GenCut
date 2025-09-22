@@ -91,14 +91,14 @@ def extract_audio(video_path, output_dir):
             print("No audio stream found in video – returning empty MP3 (or error).")
             # (Optional: Erstelle eine leere MP3-Datei – oder gib eine Fehlermeldung zurück.)
             video_filename = os.path.basename(video_path)
-            audio_filename = os.path.splitext(video_filename)[0] + ".mp3"
+            audio_filename = os.path.splitext(video_filename)[0] + "_audio.mp3"
             audio_path = os.path.join(output_dir, audio_filename)
             # (Hier: Leere MP3-Datei erstellen – oder None zurückgeben.)
             return None
 
         # Erstelle den Ausgabedateinamen basierend auf dem Videodateinamen
         video_filename = os.path.basename(video_path)
-        audio_filename = os.path.splitext(video_filename)[0] + ".mp3"
+        audio_filename = os.path.splitext(video_filename)[0] + "_audio.mp3"
         audio_path = os.path.join(output_dir, audio_filename)
 
         # Extrahiere Audio mit ffmpeg (nur wenn ein Audiostream vorhanden ist)

@@ -4,10 +4,10 @@ import uuid
 import asyncio
 from typing import Dict, Any
 from fastapi import UploadFile
-from ..utils.error_handler import VideoProcessingError, FileNotFoundError, handle_exception
-from ..config import UPLOAD_DIR, OUTPUT_DIR
-from ..scene_utils import analyze_scenes
-from ..visual_analysis import visual_analyzer
+from utils.error_handler import VideoProcessingError, FileNotFoundError, handle_exception
+from config import UPLOAD_DIR, OUTPUT_DIR
+from scene_utils import analyze_scenes
+from visual_analysis import visual_analyzer
 
 async def save_uploaded_file(file: UploadFile) -> str:
     """Save uploaded file and return the file path"""

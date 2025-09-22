@@ -104,16 +104,21 @@ async def separate_video_audio(request: VideoPathRequest):
 async def cutdown_video(request: CutdownRequest):
     """Cut video clip from file"""
     try:
+        import os
         from handlers.cutdown_handler import time_string_to_seconds
         
         start_time = time_string_to_seconds(request.start)
         end_time = time_string_to_seconds(request.end)
-        duration = end_time - start_time
         
         output_filename = request.output_filename or f"cutdown_{request.file.split('/')[-1]}"
         output_path = f"{OUTPUT_DIR}/{output_filename}"
         
-        cut_clip(request.file, output_path, start_time, duration)
+        cut_clip(request.file, output_path, start_time, end_time)
+        
+        # Check if cutdown was successful
+        if not os.path.exists(output_path) or os.path.getsize(output_path) == 0:
+            from utils.error_handler import VideoProcessingError
+            raise VideoProcessingError("Cutdown failed - output file is empty or missing")
         
         return JSONResponse(content={
             "output_url": output_path.replace('/app/videos/', '/videos/')
@@ -157,11 +162,22 @@ async def transcribe_audio_path(request: TranscribeRequest):
     """Transcribe audio from file path"""
     try:
         import requests
+        import os
         
         # Forward to whisper service
         whisper_url = "http://whisper:9000/asr"
         
-        with open(request.file, 'rb') as audio_file:
+        # Convert /videos/ path to /app/videos/ path
+        file_path = request.file.replace('/videos/', '/app/videos/')
+        
+        # Check if file exists before processing
+        if not os.path.exists(file_path):
+            return JSONResponse(
+                status_code=404,
+                content={"error": f"Audio file not found: {request.file}"}
+            )
+        
+        with open(file_path, 'rb') as audio_file:
             files = {'audio_file': audio_file}
             data = {'language_code': request.language} if request.language else {}
             

@@ -3,11 +3,14 @@ import os
 import uuid
 import subprocess
 import requests
+import logging
 from typing import List, Dict, Any
-from ..utils.error_handler import VideoProcessingError, FileNotFoundError
-from ..config import OUTPUT_DIR, SEPARATED_DIR
-from ..ffmpeg_utils import cut_clip, separate_video_audio
-from ..models.requests import SelectedScene
+from utils.error_handler import VideoProcessingError, FileNotFoundError
+from config import OUTPUT_DIR, SEPARATED_DIR
+from ffmpeg_utils import cut_clip, separate_video_audio
+from models.requests import SelectedScene
+
+logger = logging.getLogger(__name__)
 
 def time_string_to_seconds(time_str: str) -> float:
     """Convert time string (HH:MM:SS.mmmmmm) to seconds"""
@@ -52,18 +55,31 @@ async def generate_cutdown_v2(request_data: Dict[str, Any]) -> Dict[str, str]:
         if not base_video or not os.path.exists(base_video):
             raise FileNotFoundError(base_video or "base video")
         
-        # Cut individual scenes
+        # Use existing cut scene files instead of cutting new ones
         scene_files = []
         for i, scene in enumerate(selected_scenes):
-            start_time = time_string_to_seconds(scene['start_time'])
-            end_time = time_string_to_seconds(scene['end_time'])
-            duration = end_time - start_time
+            scene_number = scene.get('scene_number', i)
             
-            scene_filename = f"scene_{i:03d}_{uuid.uuid4().hex[:8]}.mp4"
-            scene_path = os.path.join(OUTPUT_DIR, scene_filename)
+            # Look for existing cut scene file
+            base_filename = os.path.splitext(os.path.basename(base_video))[0]
+            cut_scene_filename = f"{base_filename}_cut_scene_{scene_number}.mp4"
+            cut_scene_path = os.path.join(OUTPUT_DIR, cut_scene_filename)
             
-            cut_clip(base_video, scene_path, start_time, duration)
-            scene_files.append(scene_path)
+            if os.path.exists(cut_scene_path) and os.path.getsize(cut_scene_path) > 0:
+                scene_files.append(cut_scene_path)
+                logger.info(f"Using existing cut scene: {cut_scene_filename}")
+            else:
+                # Fallback: cut from original video if cut scene doesn't exist
+                start_time = time_string_to_seconds(scene['start_time'])
+                end_time = time_string_to_seconds(scene['end_time'])
+                duration = end_time - start_time
+                
+                scene_filename = f"scene_{i:03d}_{uuid.uuid4().hex[:8]}.mp4"
+                scene_path = os.path.join(OUTPUT_DIR, scene_filename)
+                
+                cut_clip(base_video, scene_path, start_time, duration)
+                scene_files.append(scene_path)
+                logger.warning(f"Cut scene not found, created new: {scene_filename}")
         
         # Concatenate scenes
         final_filename = f"cutdown_{uuid.uuid4().hex[:8]}.mp4"
@@ -130,7 +146,10 @@ async def separate_video_audio_handler(file_path: str) -> Dict[str, str]:
         video_output = os.path.join(SEPARATED_DIR, f"{filename}_video.mp4")
         audio_output = os.path.join(SEPARATED_DIR, f"{filename}_audio.mp3")
         
-        separate_video_audio(normalized_path, SEPARATED_DIR)
+        result = separate_video_audio(normalized_path, SEPARATED_DIR)
+        
+        if not result or "audio_path" not in result:
+            raise VideoProcessingError("Audio extraction failed - no audio stream found or file corrupted")
         
         return {
             "filename": os.path.basename(normalized_path),

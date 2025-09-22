@@ -16,7 +16,7 @@ from fastapi import HTTPException
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='/app/static')
 
 # Konfiguration
 UPLOAD_FOLDER = '/app/videos/uploads'
@@ -106,7 +106,7 @@ def check_status():
                 'error': 'video_id missing in request body'
             }), 400
         
-        webhook_url = f"http://n8n:5678/webhook/check-status"
+        webhook_url = f"http://docker-n8n-1:5678/webhook/check-status"
         logger.debug(f"Call n8n webhook: {webhook_url} with video_id: {video_id}")
         
         # Füge Timeout und Retry-Logik hinzu
@@ -172,7 +172,7 @@ def proxy_check_status(video_id):
     """Proxy-Route für den n8n Webhook Status-Check"""
     try:
         logger.debug(f"Proxy status check for video {video_id}")
-        webhook_url = f"http://n8n:5678/webhook/check-status/{video_id}"
+        webhook_url = f"http://docker-n8n-1:5678/webhook/check-status/{video_id}"
         logger.debug(f"Call n8n webhook: {webhook_url}")
         
         response = requests.post(webhook_url, json={"video_id": video_id})
@@ -215,7 +215,7 @@ def check_cutdown_status(video_id):
             return jsonify(cutdown_status[video_id])
         
         # Wenn kein Status gefunden wurde, prüfe bei n8n nach
-        webhook_url = f"http://n8n:5678/webhook/check-status/{video_id}"
+        webhook_url = f"http://docker-n8n-1:5678/webhook/check-status/{video_id}"
         response = requests.get(webhook_url)
         
         if response.status_code == 200:
@@ -305,7 +305,7 @@ def upload_file():
             cutdown_options['prompt'] = prompt_text
         
         # Send webhook notification to n8n
-        webhook_url = "http://n8n:5678/webhook/video"
+        webhook_url = "http://docker-n8n-1:5678/webhook/video"
         webhook_payload = {
             "filepath": "/app/videos/uploads/" + filename,
             "filename": filename,
@@ -316,7 +316,17 @@ def upload_file():
             "cutdown_options": cutdown_options,
             "prompt": prompt_text
         }
-        webhook_response = requests.post(webhook_url, json=webhook_payload, headers={"Content-Type": "application/json"})
+        try:
+            webhook_response = requests.post(webhook_url, json=webhook_payload, headers={"Content-Type": "application/json"}, timeout=5)
+            webhook_response.raise_for_status()
+            logger.info(f"Webhook notification sent successfully: {webhook_response.status_code}")
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Webhook notification failed (n8n not available): {e}")
+            # n8n is required - return error
+            return jsonify({
+                'error': 'n8n service is not available. Please ensure n8n is running and accessible.',
+                'details': str(e)
+            }), 503
         
         # Setze initialen Status
         cutdown_status[video_id] = {
@@ -324,9 +334,7 @@ def upload_file():
             'message': 'Video is being processed'
         }
         
-        if webhook_response.status_code != 200:
-            logger.error(f"Error sending webhook: {webhook_response.status_code} {webhook_response.text}")
-            return jsonify({
+        return jsonify({
                 'message': 'File successfully uploaded',
                 'filename': filename,
                 'original_filename': original_filename,  # NEW: Include in response
@@ -400,10 +408,7 @@ def serve_revoiced(filename):
     """Serve revoiced audio files"""
     return send_from_directory(REVOICED_FOLDER, filename, conditional=True)
 
-@app.route('/static/<path:filename>')
-def serve_static(filename):
-    """Serve static files including video.mp4"""
-    return send_from_directory('static', filename, conditional=True)
+# Static files are automatically served by Flask from static_folder
 
 @app.route('/generate-music', methods=['POST'])
 def generate_music():
