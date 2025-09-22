@@ -206,3 +206,8 @@ docker-volumes/
 # Local development
 local/
 dev/
+
+# API Keys and sensitive data
+*.key
+*.secret
+.env.template

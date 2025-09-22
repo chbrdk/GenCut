@@ -61,8 +61,7 @@ docker-compose build analyzer
 print_status "Building Whisper..."
 docker-compose build whisper
 
-print_status "Building Storybook..."
-docker-compose build storybook
+# Storybook removed - no longer needed
 
 print_header "5. Starting all services"
 docker-compose up -d

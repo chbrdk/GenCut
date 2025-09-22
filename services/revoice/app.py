@@ -29,10 +29,15 @@ TEMP_FOLDER = '/app/temp'
 ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mov', 'mkv', 'webm'}
 MAX_CONTENT_LENGTH = 5 * 1024 * 1024 * 1024
 
+# Umgebungsbasierte Konfiguration
+DEBUG = os.environ.get('DEBUG', 'false').lower() == 'true'
+ENV = os.environ.get('FLASK_ENV', 'production')
+
 app.config.update(
     UPLOAD_FOLDER=UPLOAD_FOLDER,
     MAX_CONTENT_LENGTH=MAX_CONTENT_LENGTH,
-    DEBUG=True
+    DEBUG=DEBUG,
+    ENV=ENV
 )
 
 # Ensure all folders exist
@@ -42,7 +47,9 @@ for folder in [UPLOAD_FOLDER, CUTDOWNS_FOLDER, SCREENSHOTS_FOLDER, REVOICED_FOLD
 video_sessions = {}
 
 # ElevenLabs API Configuration
-ELEVENLABS_API_KEY = 'sk_76fa8e172a657a24769b7714e73bf966e1e3297583c6a7ca'
+ELEVENLABS_API_KEY = os.environ.get('ELEVENLABS_API_KEY')
+if not ELEVENLABS_API_KEY:
+    raise ValueError("ELEVENLABS_API_KEY Umgebungsvariable ist erforderlich")
 ELEVENLABS_BASE_URL = 'https://api.elevenlabs.io/v1'
 
 def allowed_file(filename):

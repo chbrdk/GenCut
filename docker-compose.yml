@@ -11,10 +11,12 @@ services:
       - static_data:/app/static
       - ./temp:/app/temp
       - ./templates:/app/templates
+      - ./shared:/app/shared
     environment:
       - FLASK_APP=app.py
-      - FLASK_ENV=development
-      - ELEVENLABS_API_KEY=sk_76fa8e172a657a24769b7714e73bf966e1e3297583c6a7ca
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - DEBUG=${DEBUG:-false}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
     networks:
       - n8n-network
       - video-network
@@ -28,9 +30,12 @@ services:
     volumes:
       - videos_data:/app/videos
       - ./temp:/app/temp
+      - ./shared:/app/shared
     environment:
       - FLASK_APP=app.py
-      - FLASK_ENV=development
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - DEBUG=${DEBUG:-false}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
     networks:
       - n8n-network
     restart: unless-stopped

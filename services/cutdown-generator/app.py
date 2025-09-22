@@ -30,12 +30,16 @@ MAX_CONTENT_LENGTH = 2 * 1024 * 1024 * 1024  # 2GB max file size
 ELEVENLABS_API_KEY = os.environ.get('ELEVENLABS_API_KEY', 'your-api-key-here')
 ELEVENLABS_BASE_URL = 'https://api.elevenlabs.io/v1'
 
+# Umgebungsbasierte Konfiguration
+DEBUG = os.environ.get('DEBUG', 'false').lower() == 'true'
+ENV = os.environ.get('FLASK_ENV', 'production')
+
 app.config.update(
     UPLOAD_FOLDER=UPLOAD_FOLDER,
     CUTDOWN_FOLDER=CUTDOWN_FOLDER,
     MAX_CONTENT_LENGTH=MAX_CONTENT_LENGTH,
-    DEBUG=True,
-    ENV='development'
+    DEBUG=DEBUG,
+    ENV=ENV
 )
 
 # Stelle sicher, dass die Verzeichnisse existieren
