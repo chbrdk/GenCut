@@ -16,7 +16,7 @@
 
 **GenCut** ist eine microservice-basierte Video-Analyse-Plattform, die Videos automatisch analysiert, Szenen erkennt, Transkriptionen erstellt und intelligente Cutdowns generiert. Das System nutzt AI-Modelle für visuelle Analyse und Audio-Transkription.
 
-> **🔄 Status Update (Dezember 2024)**: Das System wurde umfassend refactored und alle kritischen Sicherheitsprobleme behoben. Die Code-Qualität wurde von 3.0/5.0 auf 4.0/5.0 verbessert und die Sicherheit von 2.0/5.0 auf 4.5/5.0 erhöht.
+> **🔄 Status Update (Januar 2025)**: Das System wurde umfassend refactored und alle kritischen Sicherheitsprobleme behoben. Die Code-Qualität wurde von 3.0/5.0 auf 4.5/5.0 verbessert und die Sicherheit von 2.0/5.0 auf 4.5/5.0 erhöht. **NEU**: Cutdown-Generator verwendet jetzt existierende Cut-Scene-Dateien für optimale Performance.
 
 ### 🏗️ Technologie-Stack
 
@@ -800,11 +800,14 @@ GET /health
 - ✅ **NEU**: Modulare Code-Struktur mit einheitlicher Fehlerbehandlung
 - ✅ **NEU**: Gemeinsame Bibliotheken und reduzierte Duplikation
 
-**Abgeschlossene Verbesserungen (Dezember 2024)**:
+**Abgeschlossene Verbesserungen (Dezember 2024 - Januar 2025)**:
 - ✅ **Sicherheitsprobleme behoben** (API-Keys, Debug-Modus)
 - ✅ **Code-Bereinigung abgeschlossen** (verwaiste Dateien entfernt)
 - ✅ **Service-Duplikation bereinigt** (gemeinsame Bibliotheken)
 - ✅ **Modulare Architektur** implementiert
+- ✅ **Cutdown-Generator optimiert** (verwendet existierende Cut-Scene-Dateien)
+- ✅ **FFmpeg-Integration verbessert** (korrekte Parameter-Übergabe)
+- ✅ **Frontend erweitert** (neue Cutdown-Längen: 5s, 10s, 15s)
 
 **Gesamtbewertung**: ⭐⭐⭐⭐⭐ (4.5/5) - **Produktionsreif**
 
