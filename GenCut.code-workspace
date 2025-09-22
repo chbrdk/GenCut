@@ -1,0 +1,137 @@
+{
+    "folders": [
+        {
+            "name": "GenCut - GitHub Repository",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "python.defaultInterpreterPath": "/usr/bin/python3",
+        "python.terminal.activateEnvironment": true,
+        "docker.showStartPage": false,
+        "files.exclude": {
+            "**/__pycache__": true,
+            "**/*.pyc": true,
+            "**/node_modules": true,
+            "**/.git": false,
+            "**/videos": true,
+            "**/temp": true,
+            "**/models": true,
+            "**/*.mp4": true,
+            "**/*.mp3": true,
+            "**/*.pth": true
+        },
+        "search.exclude": {
+            "**/node_modules": true,
+            "**/videos": true,
+            "**/temp": true,
+            "**/models": true,
+            "**/*.mp4": true,
+            "**/*.mp3": true,
+            "**/*.pth": true
+        },
+        "files.watcherExclude": {
+            "**/videos/**": true,
+            "**/temp/**": true,
+            "**/models/**": true,
+            "**/node_modules/**": true
+        },
+        "terminal.integrated.cwd": "${workspaceFolder}",
+        "docker.dockerComposeFile": "docker-compose.yml",
+        "docker.dockerComposeProjectName": "gencut"
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-python.python",
+            "ms-python.flake8",
+            "ms-python.black-formatter",
+            "ms-vscode.vscode-docker",
+            "ms-vscode.vscode-yaml",
+            "bradlc.vscode-tailwindcss",
+            "esbenp.prettier-vscode"
+        ]
+    },
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Docker: Start All Services",
+                "type": "shell",
+                "command": "docker-compose up -d",
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": []
+            },
+            {
+                "label": "Docker: Stop All Services",
+                "type": "shell",
+                "command": "docker-compose down",
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": []
+            },
+            {
+                "label": "Docker: View Logs",
+                "type": "shell",
+                "command": "docker-compose logs -f",
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": []
+            },
+            {
+                "label": "Docker: Service Status",
+                "type": "shell",
+                "command": "docker-compose ps",
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": []
+            },
+            {
+                "label": "Git: Pull Latest Changes",
+                "type": "shell",
+                "command": "git pull origin main",
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": []
+            },
+            {
+                "label": "Git: Push Changes",
+                "type": "shell",
+                "command": "git add . && git commit -m 'Update from Cursor' && git push origin main",
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": []
+            }
+        ]
+    }
+}
