@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+python-multipart
+opencv-python
+opencv-python-headless
+scenedetect
+ffmpeg-python
+torch
+torchvision
+transformers
+pillow
+numpy
+ultralytics  # for YOLO
+sentencepiece  # for text generation
+protobuf
+openai-whisper==20231117

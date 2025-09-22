@@ -1,0 +1,2723 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Revoice Upload</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+       @font-face {
+      font-family: 'UDG-icons';
+      src: url('https://www.udg.de/fonts/UDG-icons.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    .udg-logo {
+      font-family: 'UDG-icons' !important;
+      font-size: 3rem;
+      color: white;
+      position: absolute;
+      top: 2rem;
+      left: 2rem;
+      z-index: 10;
+    }
+    .udg-logo:before {
+      content: "\f51d";
+    }
+  
+    .dropzone.dragover {
+      border-color: #cf0e0e;
+      background: rgba(124, 58, 237, 0.08);
+    }
+        body {
+            background: #000;
+            min-height: 100vh;
+            font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Video Background */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            object-fit: cover;
+            opacity: 0.35;
+            filter: blur(10px);
+            -webkit-filter: blur(10px);
+        }
+        
+        /* Fallback background for when video is loading or fails */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(318deg, #0a0c16 40% 0%, #600202 100%);
+            z-index: -2;
+        }
+        :root {
+          --color-primary: #ff432e;
+          --color-secondary: #f472b6;
+        }
+        
+        /* Glassmorphism for main container */
+        .glassmorph-main {
+          background: radial-gradient(110.04% 62.55% at 51.21% 49.84%, rgba(0, 0, 0, 0.15) 24.04%, rgba(0, 0, 0, 0.15) 62.02%, rgba(0, 0, 0, 0.15) 100%);
+          box-shadow: -1px -1px 3px -2px rgba(255, 107, 107, 0.44) inset, -10px -6px 24px -8px rgba(80, 28, 28, 0.15) inset, 2px 2px 0px 0px rgba(227, 0, 0, 0.12) inset, 0px 3px 20px 5px rgba(0, 0, 0, 0.15);
+          backdrop-filter: blur(32px);
+          -webkit-backdrop-filter: blur(32px);
+          border-radius: 46px;
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        /* Glassmorphism Buttons */
+        .glassmorph-button {
+          box-shadow: inset -1px -1px 3px -2px hsla(0, 100%, 71%, .44), inset -10px -6px 24px -8px rgba(80, 28, 28, .15), inset 2px 2px 0 0 rgba(227, 0, 0, .12), 0 3px 20px 5px rgba(0, 0, 0, .15);
+          border: 1px solid hsla(0, 0%, 100%, .08);
+          background: radial-gradient(110.04% 62.55% at 51.21% 49.84%, rgb(119 119 119 / 15%) 24.04%, rgb(130 130 130 / 15%) 62.02%, rgb(157 157 157 / 15%) 100%);
+          backdrop-filter: blur(32px);
+          -webkit-backdrop-filter: blur(32px);
+          transition: all 0.3s ease;
+        }
+        .glassmorph-button:hover {
+          box-shadow: inset -1px -1px 3px -2px hsla(0, 100%, 71%, .6), inset -10px -6px 24px -8px rgba(80, 28, 28, .25), inset 2px 2px 0 0 rgba(227, 0, 0, .18), 0 3px 20px 5px rgba(0, 0, 0, .2);
+          transform: translateY(-1px);
+        }
+        .glassmorph-button:disabled {
+          cursor: not-allowed;
+        }
+        
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+          font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          letter-spacing: -0.02em;
+        }
+        p, span, div, button, input, textarea {
+          font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        /* Utility Classes */
+        .hidden { display: none; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-end { justify-content: flex-end; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-6 { gap: 1.5rem; }
+        .gap-8 { gap: 2rem; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .w-full { width: 100%; }
+        .min-h-screen { min-height: 100vh; }
+        .relative { position: relative; }
+        .truncate { 
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .cursor-pointer { cursor: pointer; }
+        .transition-all { transition: all 0.3s ease; }
+        .opacity-0 { opacity: 0; }
+        .opacity-100 { opacity: 1; }
+        .pointer-events-none { pointer-events: none; }
+        .pointer-events-auto { pointer-events: auto; }
+        
+        /* Spacing */
+        .p-10 { padding: 2.5rem; }
+        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .px-8 { padding-left: 2rem; padding-right: 2rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        
+        /* Text styles */
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-4xl { font-size: 2.25rem; }
+        .font-light { font-weight: 300; }
+        .font-bold { font-weight: 700; }
+        .leading-tight { line-height: 1.25; }
+        
+        /* Border styles */
+        .border-2 { border-width: 2px; }
+        .border-dashed { border-style: dashed; }
+        .border-white\/20 { border-color: rgba(255, 255, 255, 0.2); }
+        .rounded-\[46px\] { border-radius: 46px; }
+        .rounded-full { border-radius: 9999px; }
+        
+        /* Size constraints */
+        .max-w-\[80vw\] { max-width: 80vw; }
+        .min-h-\[120px\] { min-height: 120px; }
+        .h-12 { height: 3rem; }
+        .h-2\.5 { height: 0.625rem; }
+        .h-4 { height: 1rem; }
+        .w-4 { width: 1rem; }
+        
+        /* Colors */
+        .text-white { color: white; }
+        .text-white\/80 { color: rgba(255, 255, 255, 0.8); }
+        .text-white\/90 { color: rgba(255, 255, 255, 0.9); }
+        .text-white\/60 { color: rgba(255, 255, 255, 0.6); }
+        .bg-white\/10 { background-color: rgba(255, 255, 255, 0.1); }
+        .bg-primary { background-color: var(--color-primary); }
+        .bg-red-500 { background-color: #ef4444; }
+        .text-green-400 { color: #4ade80; }
+        .text-red-400 { color: #f87171; }
+        .text-secondary { color: var(--color-secondary); }
+        .hover\:text-primary:hover { color: var(--color-primary); }
+        .underline { text-decoration: underline; }
+        .text-primary { color: var(--color-primary); }
+        
+        /* Animation */
+        .animate-spin {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .border-b-2 { border-bottom-width: 2px; }
+        .border-white { border-color: white; }
+        .transform { transform: translateZ(0); }
+        .translate-y-4 { transform: translateY(1rem); }
+        .translate-y-0 { transform: translateY(0); }
+        .duration-300 { transition-duration: 300ms; }
+        .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+        
+        /* Additional utility for SVG positioning */
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        
+        /* Slider/Stepper Layout */
+        .slider-container {
+          display: flex;
+          gap: 2rem;
+          align-items: flex-start;
+          justify-content: center;
+          padding: 2rem;
+          max-width: 1400px;
+          margin: 0 auto;
+          position: relative;
+          overflow: hidden;
+          user-select: none;
+          width: 100%;
+        }
+        .slider-step {
+          flex: 1;
+          max-width: 70vw;
+          transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
+          position: relative;
+        }
+        .slider-step.hidden {
+          opacity: 0;
+          transform: translateX(100px);
+          pointer-events: none;
+        }
+        .slider-step.active {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        .slider-step.dragging {
+          transition: none;
+        }
+        .slider-step.swipe-left {
+          transform: translateX(-100px);
+        }
+        .slider-step.swipe-right {
+          transform: translateX(100px);
+        }
+        .stepper-nav {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+          margin-top: 2rem;
+        }
+        .stepper-dot {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.3);
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .stepper-dot.active {
+          background: var(--color-primary);
+          transform: scale(1.2);
+        }
+        .stepper-dot.completed {
+          background: var(--color-secondary);
+        }
+        .opacity-0 {
+          opacity: 0;
+        }
+        .opacity-100 {
+          opacity: 1;
+        }
+        
+        /* Swipe Indicator */
+        .swipe-indicator {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background: radial-gradient(110.04% 62.55% at 51.21% 49.84%, rgba(119, 119, 119, 0.15) 24.04%, rgba(130, 130, 130, 0.15) 62.02%, rgba(157, 157, 157, 0.15) 100%);
+          backdrop-filter: blur(32px);
+          -webkit-backdrop-filter: blur(32px);
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          z-index: 10;
+          box-shadow: inset -1px -1px 3px -2px hsla(0, 100%, 71%, .44), inset -10px -6px 24px -8px rgba(80, 28, 28, .15), inset 2px 2px 0 0 rgba(227, 0, 0, .12), 0 3px 20px 5px rgba(0, 0, 0, .15);
+          border: 1px solid hsla(0, 0%, 100%, .08);
+        }
+        .swipe-indicator:hover {
+          background: radial-gradient(110.04% 62.55% at 51.21% 49.84%, rgba(119, 119, 119, 0.25) 24.04%, rgba(130, 130, 130, 0.25) 62.02%, rgba(157, 157, 157, 0.25) 100%);
+          transform: translateY(-50%) scale(1.1);
+          box-shadow: inset -1px -1px 3px -2px hsla(0, 100%, 71%, .6), inset -10px -6px 24px -8px rgba(80, 28, 28, .25), inset 2px 2px 0 0 rgba(227, 0, 0, .18), 0 3px 20px 5px rgba(0, 0, 0, .2);
+        }
+        .swipe-indicator.left {
+          left: 1rem;
+        }
+        .swipe-indicator.right {
+          right: 1rem;
+        }
+        .swipe-indicator.hidden {
+          opacity: 0;
+          pointer-events: none;
+        }
+        
+        /* Glassmorphism for video previews */
+        .glassmorph-videos {
+          background: radial-gradient(110.04% 62.55% at 51.21% 49.84%, rgba(0, 0, 0, 0.15) 24.04%, rgba(0, 0, 0, 0.15) 62.02%, rgba(0, 0, 0, 0.15) 100%);
+          box-shadow: -1px -1px 3px -2px rgba(255, 107, 107, 0.44) inset, -10px -6px 24px -8px rgba(80, 28, 28, 0.15) inset, 2px 2px 0px 0px rgba(227, 0, 0, 0.12) inset, 0px 3px 20px 5px rgba(0, 0, 0, 0.15);
+          backdrop-filter: blur(32px);
+          -webkit-backdrop-filter: blur(32px);
+          border-radius: 46px;
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        /* Animationen */
+        .fade-in {
+          opacity: 0;
+          animation: fadeInAnim 0.8s cubic-bezier(0.4,0,0.2,1) forwards;
+        }
+        @keyframes fadeInAnim {
+          to { opacity: 1; }
+        }
+        .status-fade {
+          transition: color 0.4s, opacity 0.4s;
+        }
+        
+        /* Glassmorphism for scenes gallery */
+        .all_scenes-gallery { display: block; }
+        .scene-card {
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 24px;
+          transition: all 0.3s ease;
+          cursor: pointer;
+          flex-shrink: 0;
+          width: 100% !important;
+          scroll-snap-align: start;
+          box-sizing: border-box;
+        }
+        .scene-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+        .scene-card.active {
+          border-color: var(--color-primary);
+          box-shadow: 0 0 20px rgba(255, 67, 46, 0.3);
+        }
+        .scene-image {
+          border-radius: 16px;
+          transition: all 0.3s ease;
+        }
+        .scene-card:hover .scene-image {
+          transform: scale(1.05);
+        }
+        .all_scenes-nav {
+          display: flex;
+          gap: 0.5rem;
+          justify-content: center;
+          margin-top: 1rem;
+        }
+        .scene-nav-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.3);
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .scene-nav-dot.active {
+          background: var(--color-primary);
+          transform: scale(1.2);
+        }
+        .scene-nav-dot:hover {
+          background: rgba(255, 255, 255, 0.5);
+        }
+        #all_scenesViewport {
+          overflow-x: auto;
+          scroll-behavior: smooth;
+          /* Gradient mask for soft edges */
+          -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+          mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+          /* Hide scrollbar */
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+          /* --- Scroll Snapping --- */
+          scroll-snap-type: x mandatory;
+          scroll-padding: 0 1rem; /* Adjust padding to not cut off snapped items */
+        }
+        #all_scenesViewport::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
+        }
+        #all_scenesContainer {
+            cursor: grab;
+            /* Add padding to match scroll-padding and prevent cutting off first/last items */
+            padding: 0 1rem;
+        }
+        #all_scenesContainer.grabbing {
+            cursor: grabbing;
+        }
+        video {
+            border-radius: 40px;
+        }
+        
+        /* Custom Scrollbar for History */
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 67, 46, 0.5) rgba(255, 255, 255, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 67, 46, 0.5);
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 67, 46, 0.7);
+        }
+        
+        /* Glassmorphism Checkbox Styles */
+        .glassmorph-checkbox {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+        
+        .glassmorph-checkbox-custom {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(110.04% 62.55% at 51.21% 49.84%, rgb(119 119 119 / 15%) 24.04%, rgb(130 130 130 / 15%) 62.02%, rgb(157 157 157 / 15%) 100%);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border-radius: 50%;
+            border: 1px solid hsla(0, 0%, 100%, .08);
+            box-shadow: inset -1px -1px 3px -2px hsla(0, 100%, 71%, .44), inset -10px -6px 24px -8px rgba(80, 28, 28, .15), inset 2px 2px 0 0 rgba(227, 0, 0, .12), 0 3px 20px 5px rgba(0, 0, 0, .15);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .glassmorph-checkbox-custom:hover {
+            background: radial-gradient(110.04% 62.55% at 51.21% 49.84%, rgb(119 119 119 / 25%) 24.04%, rgb(130 130 130 / 25%) 62.02%, rgb(157 157 157 / 25%) 100%);
+            box-shadow: inset -1px -1px 3px -2px hsla(0, 100%, 71%, .6), inset -10px -6px 24px -8px rgba(80, 28, 28, .25), inset 2px 2px 0 0 rgba(227, 0, 0, .18), 0 3px 20px 5px rgba(0, 0, 0, .2);
+            transform: scale(1.1);
+        }
+        
+        .glassmorph-checkbox:checked + label .glassmorph-checkbox-custom {
+            background: radial-gradient(110.04% 62.55% at 51.21% 49.84%, rgb(255 67 46 / 25%) 24.04%, rgb(255 67 46 / 20%) 62.02%, rgb(255 67 46 / 15%) 100%);
+            border-color: rgba(255, 67, 46, 0.3);
+            box-shadow: inset -1px -1px 3px -2px hsla(0, 100%, 71%, .6), inset -10px -6px 24px -8px rgba(255, 67, 46, .25), inset 2px 2px 0 0 rgba(255, 67, 46, .18), 0 3px 20px 5px rgba(0, 0, 0, .2);
+        }
+        
+        .glassmorph-checkbox:checked + label .glassmorph-checkbox-custom::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: checkboxPop 0.2s ease-out;
+        }
+        
+        @keyframes checkboxPop {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        /* Additional utility classes */
+        .gap-3 { gap: 0.75rem; }
+        .gap-2 { gap: 0.5rem; }
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        
+        /* Grid Layout Classes */
+        .grid { display: grid; }
+        .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        .gap-8 { gap: 2rem; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .items-start { align-items: start; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .self-start { align-self: start; }
+        .w-full { width: 100%; }
+        .h-40 { height: 10rem; }
+        .h-32 { height: 8rem; }
+        .h-12 { height: 3rem; }
+        .w-12 { width: 3rem; }
+        .w-8 { width: 2rem; }
+        .h-8 { height: 2rem; }
+        .min-h-\[80px\] { min-height: 5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-3 { padding: 0.75rem; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .font-medium { font-weight: 500; }
+        .font-bold { font-weight: 700; }
+        .text-center { text-align: center; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .rounded-full { border-radius: 9999px; }
+        .bg-white\/5 { background-color: rgba(255, 255, 255, 0.05); }
+        .bg-white\/10 { background-color: rgba(255, 255, 255, 0.1); }
+        .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)); }
+        .from-purple-400 { --tw-gradient-from: #a78bfa; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(167, 139, 250, 0)); }
+        .to-pink-400 { --tw-gradient-to: #f472b6; }
+        .border-white\/10 { border-color: rgba(255, 255, 255, 0.1); }
+        .border-white\/20 { border-color: rgba(255, 255, 255, 0.2); }
+        .text-white\/60 { color: rgba(255, 255, 255, 0.6); }
+        .text-white\/80 { color: rgba(255, 255, 255, 0.8); }
+        .hover\:text-white:hover { color: white; }
+        .object-cover { object-fit: cover; }
+        .resize-none { resize: none; }
+        .focus\:outline-none:focus { outline: none; }
+        .focus\:ring-2:focus { --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color); --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000); }
+        .combined-scene-card {
+          background: linear-gradient(135deg, rgba(255,67,46,0.30) 0%, transparent 80%) !important;
+        }
+        #sceneCombinationControls {
+          background: radial-gradient(110.04% 62.55% at 51.21% 49.84%, rgba(255,255,255,0.10) 24.04%, rgba(255,255,255,0.07) 62.02%, rgba(255,255,255,0.05) 100%);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border-radius: 24px;
+          border: 1.5px solid rgba(255,255,255,0.13);
+          box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+          transition: box-shadow 0.3s;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 1.5rem 1rem;
+        }
+        #sceneCombinationControls .controls-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+          gap: 1.5rem;
+        }
+        #sceneCombinationControls .controls-buttons {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 1rem;
+          width: 100%;
+        }
+        #sceneCombinationControls.sticky {
+          position: sticky;
+          top: 0.5rem;
+          z-index: 100;
+        }
+        #scenesList {
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+        #fixedSceneCombinationControls {
+          position: fixed;
+          z-index: 100000;
+          bottom: 0;
+          width: 100%;
+          max-width: 1520px;
+          left: 50%;
+          transform: translateX(-50%);
+          margin-bottom: 0.5rem;
+          display: none;
+        }
+        #fixedSceneCombinationControls.active {
+          display: block;
+        }
+        #fixedSceneCombinationControls .fixed-controls-inner {
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          background: rgba(20,20,20,0.55);
+          border-radius: 1.5rem;
+          border: 1.5px solid rgba(255,255,255,0.13);
+          box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+          padding: 1.5rem 2rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1.2rem;
+        }
+        /* Voice Overlay Styles */
+        .voice-overlay {
+            position: absolute;
+            top: -140%;
+            left: 0;
+            right: 0;
+            min-width: 340px;
+            background: radial-gradient(110.04% 62.55% at 51.21% 49.84%, rgba(0, 0, 0, 0.95) 24.04%, rgba(0, 0, 0, 0.9) 62.02%, rgba(0, 0, 0, 0.85) 100%);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1rem;
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            
+            /* Glassmorphism Scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 67, 46, 0.6) rgba(255, 255, 255, 0.1);
+        }
+        
+        .voice-overlay::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .voice-overlay::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            margin: 4px 0;
+        }
+        
+        .voice-overlay::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, rgba(255, 67, 46, 0.8) 0%, rgba(255, 67, 46, 0.6) 100%);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        
+        .voice-overlay::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, rgba(255, 67, 46, 1) 0%, rgba(255, 67, 46, 0.8) 100%);
+            box-shadow: 0 2px 8px rgba(255, 67, 46, 0.3);
+        }
+        
+        .voice-overlay::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(135deg, rgba(255, 67, 46, 0.9) 0%, rgba(255, 67, 46, 0.7) 100%);
+        }
+        
+        .voice-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .voice-overlay-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .voice-overlay-title {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+        }
+        
+        .voice-overlay-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .voice-overlay-close:hover {
+            color: rgba(255, 255, 255, 1);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .voice-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        
+        .voice-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .voice-item.selected {
+            background: rgba(255, 67, 46, 0.1);
+            border-color: rgba(255, 67, 46, 0.3);
+        }
+        
+        .voice-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+        
+        .voice-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .voice-name {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .voice-details {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.75rem;
+        }
+        
+        .voice-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .voice-preview-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .voice-preview-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 1);
+        }
+        
+        .voice-select-btn {
+            background: var(--color-primary);
+            border: none;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .voice-select-btn:hover {
+            background: rgba(255, 67, 46, 0.8);
+            transform: translateY(-1px);
+        }
+        
+        /* Ensure scene cards have relative positioning for overlay */
+        .scene-card {
+            position: relative;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen flex flex-col items-center justify-center">
+    <!-- Fixed scene controls (sticky top) -->
+    <div id="fixedSceneCombinationControls" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 hidden">
+        <div class="fixed-controls-inner">
+            <div class="flex items-center justify-between w-full gap-4">
+                <div id="fixedSceneSelectionControls" class="hidden">
+                    <div class="flex items-center gap-2">
+                        <button onclick="selectAllScenes()" 
+                                class="glassmorph-button px-3 py-1 rounded-xl text-xs text-white">
+                            Select all
+                        </button>
+                        <button onclick="deselectAllScenes()" 
+                                class="glassmorph-button px-3 py-1 rounded-xl text-xs text-white">
+                            Deselect all
+                        </button>
+                        <button onclick="combineSelectedScenes()" 
+                                class="glassmorph-button px-4 py-2 rounded-xl text-sm text-white bg-primary">
+                            <span class="material-icons mr-1" style="font-size:1rem;">merge</span>
+                            Combine
+                        </button>
+                    </div>
+                </div>
+                <button onclick="toggleSceneSelection()" 
+                        class="glassmorph-button w-8 h-8 rounded-xl text-white flex items-center justify-center">
+                    <span class="material-icons" style="font-size:1.2rem;">close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Video Background -->
+    <video class="video-background" autoplay muted loop playsinline>
+        <source src="/static/video2.mp4" type="video/mp4">
+        <!-- Fallback for browsers that don't support video -->
+    </video>
+    
+    <!-- Logo top-left -->
+    <span class="udg-logo"></span>
+
+    <!-- Slider container similar to analyzer -->
+    <div id="sliderContainer" class="slider-container">
+        <!-- Step 1: Upload -->
+        <div id="step1" class="slider-step active">
+            <div class="glassmorph-main max-w-[80vw] w-full p-10 rounded-[46px] text-white flex flex-col gap-8">
+                <div class="flex flex-col gap-2">
+                    <span class="text-primary text-4xl font-bold">Video Revoice</span>
+                    <h1 class="text-4xl font-light leading-tight">Upload your video for revoicing<br>and start processing</h1>
+                </div>
+                <form id="uploadForm" class="flex flex-col gap-6">
+                    <!-- Dropzone -->
+                    <div id="dropZone" class="dropzone flex items-center justify-center border-2 border-dashed border-white/20 rounded-[46px] min-h-[120px] cursor-pointer transition-all text-center px-6 py-8">
+                        <div class="w-full">
+                            <svg class="mx-auto h-12 w-12 text-primary mb-2" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <p class="text-lg text-white/80">Drag the video here or <span class="underline cursor-pointer text-primary" id="fileSelectText">select a file</span></p>
+                            <p class="text-sm text-white/60 mt-2">MP4, AVI, MOV, MKV, WebM • Max. 5GB</p>
+                            <input type="file" id="fileInput" class="hidden" accept=".mp4,.avi,.mov,.mkv,.webm">
+                        </div>
+                    </div>
+                    <!-- Dateiname & Fortschritt -->
+                    <div id="fileInfo" class="hidden flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <span id="fileName" class="truncate text-white/90"></span>
+                            <button type="button" id="removeFile" class="text-secondary hover:text-primary text-4xl">&times;</button>
+                        </div>
+                        <div id="uploadProgress" class="w-full bg-white/10 rounded-full h-2.5">
+                            <div id="progressBar" class="bg-primary h-2.5 rounded-full transition-all" style="width: 0%"></div>
+                        </div>
+                        <p id="progressText" class="text-xs text-white/60 text-right">0%</p>
+                    </div>
+                    <!-- Upload Button -->
+                    <div class="flex justify-end">
+                        <div id="uploadButtonContainer" class="opacity-0 transform translate-y-4 transition-all duration-300 ease-out pointer-events-none">
+                            <button type="submit" id="uploadButton" class="glassmorph-button rounded-full px-8 py-2 text-white flex items-center gap-2 disabled:cursor-not-allowed" disabled>
+                                Start revoice <span class="text-xl">&gt;</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="statusMessage" class="mt-2 text-center text-sm hidden"></div>
+                </form>
+            </div>
+        </div>
+        <!-- Step 2: Scenes overview -->
+        <div id="step2" class="slider-step hidden">
+            <div class="glassmorph-videos max-w-[80vw] w-full p-10 rounded-[46px] text-white flex flex-col gap-8">
+                                    <div class="flex justify-between items-start gap-8">
+                        <div class="flex flex-col gap-2">
+                            <span class="text-primary text-4xl font-bold">Revoice processing</span>
+                            <h2 class="text-2xl font-light">Scene analysis & text editing</h2>
+                        </div>
+                        <div class="flex flex-col gap-4 items-end">
+                            <!-- Polling Control Button -->
+                            <button id="pollingControlBtn" onclick="togglePolling()" 
+                                    class="glassmorph-button px-4 py-2 rounded-full text-sm text-white flex items-center gap-2">
+                                <span class="material-icons" style="font-size:1rem;">pause</span>
+                                <span id="pollingControlText">Pause polling</span>
+                            </button>
+                            
+                            <div id="step2ProgressContainer" class="flex flex-col gap-2 items-end w-full pt-2">
+                                <!-- Progress will be injected here -->
+                            </div>
+                        </div>
+                    </div>
+                
+                <!-- Original Video -->
+                <div id="originalVideoContainer" class="flex flex-col gap-6 items-center">
+                    <span class="text-xl font-light text-left w-full py-8">Original video</span>
+                    <video id="originalVideoPlayer" src="" controls class="rounded-xl w-full shadow-lg fade-in hidden"></video>
+                </div>
+                
+                <!-- Scenes gallery (removed) -->
+                
+                <!-- Scene combination controls -->
+                <div id="sceneCombinationControls" class="w-full bg-white/5 rounded-xl p-4 border border-white/10 mb-4 hidden">
+                    <div class="controls-header">
+                        <h3 class="text-lg font-bold text-white">Scene combination</h3>
+                        <button onclick="toggleSceneSelection()" 
+                                class="glassmorph-button px-4 py-2 rounded-full text-sm text-white">
+                            <span class="material-icons mr-1" style="font-size:1rem;">select_all</span>
+                            Select scenes
+                        </button>
+                    </div>
+                    <div id="sceneSelectionControls" class="hidden">
+                        <div class="controls-buttons mb-4">
+                            <button onclick="selectAllScenes()" 
+                                    class="glassmorph-button px-3 py-1 rounded-full text-xs text-white">
+                                Select all
+                            </button>
+                            <button onclick="deselectAllScenes()" 
+                                    class="glassmorph-button px-3 py-1 rounded-full text-xs text-white">
+                                Deselect all
+                            </button>
+                            <button onclick="combineSelectedScenes()" 
+                                    class="glassmorph-button px-4 py-2 rounded-full text-sm text-white bg-primary">
+                                <span class="material-icons mr-1" style="font-size:1rem;">merge</span>
+                                Combine selected scenes
+                            </button>
+                        </div>
+                        <div class="text-xs text-white/60 text-center">
+                            Select consecutive scenes to combine them into a new merged scene.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Scene list for text editing -->
+                <div id="scenesList" class="w-full flex flex-col gap-4 mt-4">
+                    <!-- Scenes will be injected here dynamically -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Step 3: Ergebnis -->
+        <div id="step3" class="slider-step hidden">
+            <div class="glassmorph-videos max-w-[80vw] w-full p-10 rounded-[46px] text-white flex flex-col gap-8">
+                <div class="flex flex-col gap-2">
+                    <span class="text-primary text-4xl font-bold">Revoice result</span>
+                    <h2 class="text-2xl font-light">Your revoiced video is ready</h2>
+                </div>
+                <div id="lipSyncResultContainer" class="flex flex-col gap-8 items-center justify-center">
+                    <!-- Final lip-sync video will be inserted here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Swipe Indicators -->
+        <div id="swipeLeft" class="swipe-indicator left hidden">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+        </div>
+        <div id="swipeRight" class="swipe-indicator right hidden">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </div>
+    </div>
+    
+    <!-- Text Edit Modal -->
+    <div id="textEditModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="glassmorph-main max-w-2xl w-full p-8 rounded-[46px] text-white">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">Edit text</h3>
+                    <button onclick="closeTextEditModal()" class="text-white/60 hover:text-white text-2xl">&times;</button>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2">New text for scene <span id="modalSceneNumber"></span></label>
+                    <textarea id="modalTextInput" class="w-full h-32 p-4 rounded-xl bg-white/10 text-white border border-white/20 resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" placeholder="Enter the new text here..."></textarea>
+                </div>
+                <div class="flex gap-4 justify-end">
+                    <button onclick="closeTextEditModal()" class="glassmorph-button px-6 py-3 rounded-full text-white">
+                        Cancel
+                    </button>
+                    <button onclick="updateSceneText()" class="glassmorph-button px-6 py-3 rounded-full text-white bg-primary">
+                        Update text
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Stepper Navigation -->
+    <div class="stepper-nav">
+        <div id="step1Dot" class="stepper-dot active" onclick="goToStep(1)"></div>
+        <div id="step2Dot" class="stepper-dot" onclick="goToStep(2)"></div>
+        <div id="step3Dot" class="stepper-dot" onclick="goToStep(3)"></div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileSelectText = document.getElementById('fileSelectText');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const removeFile = document.getElementById('removeFile');
+        const uploadForm = document.getElementById('uploadForm');
+        const uploadButton = document.getElementById('uploadButton');
+        const uploadButtonContainer = document.getElementById('uploadButtonContainer');
+        const uploadProgress = document.getElementById('uploadProgress');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const statusMessage = document.getElementById('statusMessage');
+
+        let selectedFile = null;
+        let currentVideoId = null;
+        let lipSyncPollingInterval = null;
+        let isPollingActive = true;
+        let currentStep = 1;
+        let isDragging = false;
+        let startX = 0;
+        let currentX = 0;
+        let dragThreshold = 50;
+        let allScenes = [];
+        let all_scenesData = []; // Stores scene data
+        let currentScenePage = 0;
+        const all_scenesPerPage = 4;
+        let sceneEndListener = null; // Holds the listener to stop scene playback
+        let autoHighlightListener = null; // Holds the listener for auto-highlighting
+        let pollingStatus = '';
+        let pollingProgress = 0;
+
+        // Event Listeners
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener('drop', handleDrop, false);
+        });
+        
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileSelectText.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.click();
+        });
+        fileInput.addEventListener('change', handleFileSelect);
+        removeFile.addEventListener('click', removeSelectedFile);
+        uploadForm.addEventListener('submit', handleUpload);
+
+        // Touch and mouse events for swipe/drag
+        const sliderContainer = document.getElementById('sliderContainer');
+        
+        // Touch Events
+        sliderContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+        sliderContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+        sliderContainer.addEventListener('touchend', handleTouchEnd, { passive: false });
+        
+        // Mouse events for desktop
+        sliderContainer.addEventListener('mousedown', handleMouseDown);
+        sliderContainer.addEventListener('mousemove', handleMouseMove);
+        sliderContainer.addEventListener('mouseup', handleMouseUp);
+        sliderContainer.addEventListener('mouseleave', handleMouseUp);
+        
+        // Swipe Indicator Events
+        document.getElementById('swipeLeft').addEventListener('click', () => goToStep(currentStep - 1));
+        document.getElementById('swipeRight').addEventListener('click', () => goToStep(currentStep + 1));
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight() {
+            dropZone.classList.add('dragover');
+        }
+
+        function unhighlight() {
+            dropZone.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            unhighlight();
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                selectedFile = files[0];
+                updateFileInfo();
+            }
+        }
+
+        function updateFileInfo() {
+            if (selectedFile) {
+                // Hide dropzone, show file info
+                dropZone.classList.add('hidden');
+                fileInfo.classList.remove('hidden');
+                
+                fileName.textContent = selectedFile.name;
+                uploadButton.disabled = false;
+                
+                // Animate upload button in
+                setTimeout(() => {
+                    uploadButtonContainer.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+                    uploadButtonContainer.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+                }, 100);
+            } else {
+                // Show dropzone, hide file info
+                dropZone.classList.remove('hidden');
+                fileInfo.classList.add('hidden');
+                
+                uploadButton.disabled = true;
+                
+                // Animate upload button out
+                uploadButtonContainer.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+                uploadButtonContainer.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+            }
+            
+            // Reset progress bar
+            progressBar.style.width = '0%';
+            progressText.textContent = '0%';
+        }
+
+        function removeSelectedFile() {
+            selectedFile = null;
+            fileInput.value = '';
+            updateFileInfo();
+        }
+
+        async function handleUpload(e) {
+            e.preventDefault();
+            if (!selectedFile) return;
+            
+            // Add loading animation to button
+            uploadButton.innerHTML = `
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Uploading...</span>
+            `;
+            uploadButton.disabled = true;
+            
+            const formData = new FormData();
+            formData.append('video', selectedFile);
+            
+            statusMessage.classList.add('hidden');
+            fileInfo.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            progressText.textContent = '0%';
+            
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/upload', true);
+                
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressBar.style.width = percentComplete + '%';
+                        progressText.textContent = Math.round(percentComplete) + '%';
+                    }
+                };
+                
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        currentVideoId = response.video_id;
+                        currentFilename = response.filename;
+                        showStatus('Upload successful! Lip-sync processing has started...', 'text-green-400');
+                        
+                        // Start Lip-Sync polling
+                        startLipSyncPolling(response.video_id);
+                    } else {
+                        const response = JSON.parse(xhr.responseText);
+                        showStatus('Error: ' + (response.error || 'Unknown error'), 'text-red-400');
+                    }
+                    
+                    // Reset button to original state
+                    uploadButton.innerHTML = '💋 Lip-Sync starten <span class="text-xl">&gt;</span>';
+                    uploadButton.disabled = false;
+                };
+                
+                xhr.onerror = function() {
+                    showStatus('Network error during upload', 'text-red-400');
+                    
+                    // Reset button to original state
+                    uploadButton.innerHTML = 'Start revoice <span class="text-xl">&gt;</span>';
+                    uploadButton.disabled = false;
+                };
+                
+                xhr.send(formData);
+            } catch (error) {
+                showStatus('Error during upload: ' + error.message, 'text-red-400');
+                
+                // Reset button to original state
+                uploadButton.innerHTML = 'Start revoice <span class="text-xl">&gt;</span>';
+                uploadButton.disabled = false;
+            }
+        }
+
+        function showStatus(message, className) {
+            statusMessage.textContent = message;
+            statusMessage.className = 'mt-2 text-center text-sm ' + className;
+            statusMessage.classList.remove('hidden');
+        }
+
+        function goToStep(step) {
+            // Validierung
+            if (step < 1 || step > 3) return;
+            
+            // Alle Steps ausblenden
+            document.querySelectorAll('.slider-step').forEach(s => {
+                s.classList.add('hidden');
+                s.classList.remove('active');
+            });
+            
+            // Alle Dots zurücksetzen
+            document.querySelectorAll('.stepper-dot').forEach(d => {
+                d.classList.remove('active', 'completed');
+            });
+            
+            // Gewählten Step anzeigen
+            document.getElementById(`step${step}`).classList.remove('hidden');
+            document.getElementById(`step${step}`).classList.add('active');
+            document.getElementById(`step${step}Dot`).classList.add('active');
+            
+            // Vorherige Steps als completed markieren
+            for (let i = 1; i < step; i++) {
+                document.getElementById(`step${i}Dot`).classList.add('completed');
+            }
+            
+            currentStep = step;
+            updateSwipeIndicators();
+        }
+        
+        function updateSwipeIndicators() {
+            const leftIndicator = document.getElementById('swipeLeft');
+            const rightIndicator = document.getElementById('swipeRight');
+            
+            // Linker Indicator (nur sichtbar wenn nicht auf Step 1)
+            if (currentStep > 1) {
+                leftIndicator.classList.remove('hidden');
+            } else {
+                leftIndicator.classList.add('hidden');
+            }
+            
+            // Rechter Indicator (nur sichtbar wenn nicht auf Step 3)
+            if (currentStep < 3) {
+                rightIndicator.classList.remove('hidden');
+            } else {
+                rightIndicator.classList.add('hidden');
+            }
+        }
+        
+        // Initialize swipe indicators
+        updateSwipeIndicators();
+        
+        // Swipe Functions
+        function handleTouchStart(e) {
+            e.preventDefault();
+            startX = e.touches[0].clientX;
+            currentX = startX;
+            isDragging = true;
+        }
+        function handleTouchMove(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            currentX = e.touches[0].clientX;
+            const diff = currentX - startX;
+            
+            // Visual feedback during swipe
+            const activeStep = document.querySelector('.slider-step.active');
+            if (activeStep) {
+                activeStep.style.transform = `translateX(${diff * 0.3}px)`;
+            }
+        }
+        function handleTouchEnd(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            const diff = currentX - startX;
+            const activeStep = document.querySelector('.slider-step.active');
+            
+            if (activeStep) {
+                activeStep.style.transform = '';
+            }
+            
+            if (Math.abs(diff) > dragThreshold) {
+                if (diff > 0 && currentStep > 1) {
+                    // Swipe right -> previous step
+                    goToStep(currentStep - 1);
+                } else if (diff < 0 && currentStep < 3) {
+                    // Swipe left -> next step
+                    goToStep(currentStep + 1);
+                }
+            }
+        }
+        function handleMouseDown(e) {
+            startX = e.clientX;
+            currentX = startX;
+            isDragging = true;
+            sliderContainer.style.cursor = 'grabbing';
+        }
+        function handleMouseMove(e) {
+            if (!isDragging) return;
+            currentX = e.clientX;
+            const diff = currentX - startX;
+            
+            // Visual feedback during drag
+            const activeStep = document.querySelector('.slider-step.active');
+            if (activeStep) {
+                activeStep.style.transform = `translateX(${diff * 0.3}px)`;
+            }
+        }
+        function handleMouseUp(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            sliderContainer.style.cursor = '';
+            
+            const diff = currentX - startX;
+            const activeStep = document.querySelector('.slider-step.active');
+            
+            if (activeStep) {
+                activeStep.style.transform = '';
+            }
+            
+            if (Math.abs(diff) > dragThreshold) {
+                if (diff > 0 && currentStep > 1) {
+                    // Drag right -> previous step
+                    goToStep(currentStep - 1);
+                } else if (diff < 0 && currentStep < 3) {
+                    // Drag left -> next step
+                    goToStep(currentStep + 1);
+                }
+            }
+        }
+
+        function startLipSyncPolling(videoId) {
+            goToStep(2);
+            
+            // Show original video
+            showOriginalVideo(`/videos/uploads/${currentFilename}`);
+            
+            // Inject progress indicator
+            const progressContainer = document.getElementById('step2ProgressContainer');
+            progressContainer.innerHTML = `
+                <span id="cutdownStatusText" class="text-4xl font-light text-white status-fade text-right">Lip-sync is processing...</span>
+                <div id="cutdownProgress" class="w-full bg-white/10 rounded-full h-3 mt-1">
+                    <div id="cutdownProgressBar" class="bg-primary h-3 rounded-full transition-all duration-500" style="width: 10%"></div>
+                </div>
+                <div id="cutdownSpinner" class="mt-2 self-end">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                </div>
+            `;
+            
+            // Initial progress
+            updateLipSyncProgress(10);
+            
+            if (lipSyncPollingInterval) clearInterval(lipSyncPollingInterval);
+            lipSyncPollingInterval = setInterval(async () => {
+                if (!isPollingActive) return; // Skip if polling is paused
+                try {
+                    const res = await fetch('/lip-sync-status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ video_id: videoId })
+                    });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    pollingStatus = data.status;
+                    pollingProgress = data.progress || 0;
+                    allScenes = data.all_scenes || [];
+                    
+                    // Update progress
+                    updateLipSyncProgress(pollingProgress);
+                    
+                    // Show scenes if available
+                    if (allScenes && allScenes.length > 0) {
+                        console.log('Scenes available, updating list');
+                        
+                        // Show scene combination controls
+                        const combinationControls = document.getElementById('sceneCombinationControls');
+                        if (combinationControls) {
+                            combinationControls.classList.remove('hidden');
+                        }
+                        
+                        // Count only non-combined scenes for comparison
+                        const nonCombinedScenes = allScenes.filter(scene => !scene.is_combined);
+                        const currentSceneCards = document.querySelectorAll('.scene-card');
+                        
+                        // Only render if number of non-combined scenes changed
+                        if (nonCombinedScenes.length !== currentSceneCards.length) {
+                            renderScenesList();
+                        } else {
+                            // Nur Daten aktualisieren, UI nicht neu rendern
+                            updateScenesData(allScenes);
+                        }
+                    }
+                    
+                    if (pollingStatus === 'completed') {
+                        clearInterval(lipSyncPollingInterval);
+                        showLipSyncResult(data.result_path);
+                    }
+                } catch (e) {
+                    console.error('Error during lip-sync status check:', e);
+                }
+            }, 5000);
+        }
+
+        function updateLipSyncProgress(status, progress = null, message = null) {
+            const progressBar = document.getElementById('cutdownProgressBar');
+            const statusText = document.getElementById('cutdownStatusText');
+            
+            if (!progressBar || !statusText) return;
+            
+            let progressPercent = 0;
+            let statusMessage = 'Lip-sync is processing...';
+            
+            // Wenn status ein numerischer Wert ist (0-100)
+            if (typeof status === 'number') {
+                progressPercent = Math.max(0, Math.min(100, status));
+                statusMessage = `${Math.round(progressPercent)}%`;
+            } else if (progress !== null) {
+                // Wenn progress explizit übergeben wurde
+                progressPercent = Math.max(0, Math.min(100, progress));
+                statusMessage = `${Math.round(progressPercent)}%`;
+            } else {
+                // Fallback for string status
+                switch(status) {
+                    case 'uploaded':
+                        progressPercent = 20;
+                        statusMessage = 'Video uploaded...';
+                        break;
+                    case 'processing':
+                        progressPercent = 40;
+                        statusMessage = 'Processing video...';
+                        break;
+                    case 'analyzing':
+                        progressPercent = 60;
+                        statusMessage = 'Analyzing video...';
+                        break;
+                    case 'generating':
+                        progressPercent = 80;
+                        statusMessage = 'Generating lip-sync...';
+                        break;
+                    case 'completed':
+                        progressPercent = 100;
+                        statusMessage = 'Lip-sync ready!';
+                        break;
+                    case 'failed':
+                        progressPercent = 0;
+                        statusMessage = 'Error creating lip-sync';
+                        break;
+                    default:
+                        if (progress !== null) {
+                            progressPercent = progress;
+                            statusMessage = `${Math.round(progress)}%`;
+                        } else {
+                            progressPercent = 50;
+                            statusMessage = 'Processing...';
+                        }
+                }
+            }
+            
+            // Progress Bar aktualisieren
+            progressBar.style.width = progressPercent + '%';
+            statusText.textContent = statusMessage;
+            
+            // Farbkodierung basierend auf Fortschritt
+            if (progressPercent === 100) {
+                statusText.style.color = 'var(--color-primary)';
+                progressBar.style.background = 'var(--color-primary)';
+            } else if (progressPercent === 0 && status === 'failed') {
+                statusText.style.color = '#ef4444';
+                progressBar.style.background = '#ef4444';
+            } else {
+                statusText.style.color = 'rgba(255,255,255,0.7)';
+                progressBar.style.background = 'var(--color-primary)';
+            }
+            
+            console.log(`Progress Update: ${progressPercent}% - ${statusMessage}`);
+        }
+        
+        function showOriginalVideo(src) {
+            const videoPlayer = document.getElementById('originalVideoPlayer');
+            if (videoPlayer) {
+                videoPlayer.src = src;
+                videoPlayer.classList.remove('hidden');
+            }
+        }
+        
+        function showLipSyncResult(src) {
+            const resultContainer = document.getElementById('lipSyncResultContainer');
+            if (!resultContainer) return;
+            
+            const resultHtml = `
+                <video src="${src}" controls class="rounded-xl w-full shadow-lg fade-in"></video>
+                <a href="${src}" download class="glassmorph-button rounded-full px-8 py-3 mt-6 text-white flex items-center gap-2 transition-transform hover:scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Download video</span>
+                </a>
+                
+                <!-- New Video Button -->
+                <button onclick="startNewVideo()" class="glassmorph-button rounded-full px-8 py-3 mt-4 text-white flex items-center gap-2 transition-transform hover:scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Create new video</span>
+                </button>
+            `;
+            resultContainer.innerHTML = resultHtml;
+            
+            // Hide progress in step 2
+            const progressContainer = document.getElementById('step2ProgressContainer');
+            if(progressContainer) {
+                progressContainer.innerHTML = `
+                    <span id="cutdownStatusText" class="text-sm text-green-400 status-fade text-right">Lip-sync ready!</span>
+                    <div id="cutdownProgress" class="w-full bg-white/10 rounded-full h-3 mt-1">
+                        <div id="cutdownProgressBar" class="bg-primary h-3 rounded-full transition-all duration-500" style="width: 100%"></div>
+                    </div>
+                `;
+            }
+            
+            updateLipSyncProgress(100);
+            
+            // Automatisch zu Step 3 wechseln
+            goToStep(3);
+        }
+        
+        function startNewVideo() {
+            // Reset form
+            if (uploadForm) uploadForm.reset();
+            
+            // Reset variables
+            selectedFile = null;
+            currentVideoId = null;
+            currentFilename = null;
+            stopLipSyncPolling();
+            
+            // Reset file info
+            updateFileInfo();
+            
+            // Clear video previews
+            const originalVideo = document.getElementById('originalVideoPlayer');
+            if (originalVideo) {
+                originalVideo.classList.add('hidden');
+                originalVideo.src = '';
+            }
+            
+            // Clear scenes
+            const scenesGallery = document.getElementById('all_scenesGalleryWrapper');
+            if (scenesGallery) {
+                scenesGallery.classList.add('hidden');
+            }
+            
+            // Clear scenes list
+            const scenesList = document.getElementById('scenesList');
+            if (scenesList) {
+                scenesList.innerHTML = '';
+            }
+            
+            // Clear result
+            const resultContainer = document.getElementById('lipSyncResultContainer');
+            if (resultContainer) {
+                resultContainer.innerHTML = '';
+            }
+            
+            // Go back to step 1
+            goToStep(1);
+            
+            console.log('New revoice upload started');
+        }
+        
+        function stopLipSyncPolling() {
+            if (lipSyncPollingInterval) {
+                clearInterval(lipSyncPollingInterval);
+                lipSyncPollingInterval = null;
+                console.log('Lip-Sync polling stopped');
+            }
+        }
+        
+        function togglePolling() {
+            isPollingActive = !isPollingActive;
+            const button = document.getElementById('pollingControlBtn');
+            const text = document.getElementById('pollingControlText');
+            const icon = button.querySelector('.material-icons');
+            
+            if (isPollingActive) {
+                // Polling aktivieren
+                icon.textContent = 'pause';
+                text.textContent = 'Pause polling';
+                button.classList.remove('bg-red-500');
+                button.classList.add('bg-primary');
+                console.log('Polling resumed');
+            } else {
+                // Pause polling
+                icon.textContent = 'play_arrow';
+                text.textContent = 'Resume polling';
+                button.classList.remove('bg-primary');
+                button.classList.add('bg-red-500');
+                console.log('Polling paused');
+            }
+        }
+
+        // Scene functions
+        function checkall_scenesChanged(newall_scenes) {
+            console.log('=== CHECK all_scenes CHANGED ===');
+            console.log('Current all_scenesData:', all_scenesData);
+            console.log('New scenes:', newall_scenes);
+            
+            // If there are no previous scenes, they have changed
+            if (!all_scenesData || all_scenesData.length === 0) {
+                console.log('No previous scenes found, change detected');
+                return true;
+            }
+            
+            // Check number of scenes
+            if (all_scenesData.length !== newall_scenes.length) {
+                console.log('Number of scenes changed:', all_scenesData.length, '->', newall_scenes.length);
+                return true;
+            }
+            
+            // Check each scene for changes
+            for (let i = 0; i < all_scenesData.length; i++) {
+                const oldScene = all_scenesData[i];
+                const newScene = newall_scenes[i];
+                
+                // Check basic properties
+                if (oldScene.scene !== newScene.scene ||
+                    oldScene.start_time !== newScene.start_time ||
+                    oldScene.end_time !== newScene.end_time) {
+                    console.log(`Szene ${i} geändert:`, oldScene, '->', newScene);
+                    return true;
+                }
+                
+                // Check screenshots
+                if (!oldScene.screenshots || !newScene.screenshots) {
+                    if (oldScene.screenshots !== newScene.screenshots) {
+                        console.log(`Szene ${i} Screenshots geändert:`, oldScene.screenshots, '->', newScene.screenshots);
+                        return true;
+                    }
+                } else if (oldScene.screenshots.length !== newScene.screenshots.length) {
+                    console.log(`Scene ${i} screenshot count changed:`, oldScene.screenshots.length, '->', newScene.screenshots.length);
+                    return true;
+                } else {
+                    // Check every screenshot
+                    for (let j = 0; j < oldScene.screenshots.length; j++) {
+                        const oldScreenshot = oldScene.screenshots[j];
+                        const newScreenshot = newScene.screenshots[j];
+                        
+                        if (oldScreenshot.url !== newScreenshot.url ||
+                            oldScreenshot.timestamp !== newScreenshot.timestamp ||
+                            oldScreenshot.frame_number !== newScreenshot.frame_number) {
+                            console.log(`Scene ${i} screenshot ${j} changed:`, oldScreenshot, '->', newScreenshot);
+                            return true;
+                        }
+                    }
+                }
+            }
+            
+            console.log('No changes detected');
+            return false;
+        }
+        
+        function showall_scenesGallery(all_scenes) {
+            console.log('=== SHOW all_scenes GALLERY START ===');
+            
+            const all_scenesGalleryWrapper = document.getElementById('all_scenesGalleryWrapper');
+            const all_scenesContainer = document.getElementById('all_scenesContainer');
+            
+            // Defensive check: If elements don't exist yet, retry in a moment.
+            if (!all_scenesGalleryWrapper || !all_scenesContainer) {
+                console.warn('DOM elements for scene gallery not ready. Retrying in 200ms.');
+                setTimeout(() => showall_scenesGallery(all_scenes), 200);
+                return;
+            }
+
+            console.log('showall_scenesGallery aufgerufen mit:', all_scenes);
+            
+            all_scenesData = all_scenes;
+            currentScenePage = 0;
+            
+            console.log('Scene data set:', all_scenesData);
+            
+            // Show scene gallery
+            all_scenesGalleryWrapper.classList.remove('hidden');
+            console.log('Scene gallery made visible');
+            
+            renderall_scenes();
+
+            const all_scenesViewport = document.getElementById('all_scenesViewport');
+            
+            // Drag-to-scroll logic for both Mouse and Touch, now correctly isolated
+            let isDown = false;
+            let all_scenestartX;
+            let scrollLeft;
+
+            const startSceneDrag = (e) => {
+                e.stopPropagation(); // This is the fix: prevent event from bubbling to the step slider
+                isDown = true;
+                all_scenesContainer.classList.add('grabbing');
+                all_scenestartX = (e.pageX || e.touches[0].pageX) - all_scenesViewport.offsetLeft;
+                scrollLeft = all_scenesViewport.scrollLeft;
+            };
+
+            const stopSceneDrag = () => {
+                isDown = false;
+                all_scenesContainer.classList.remove('grabbing');
+            };
+
+            const doSceneDrag = (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = (e.pageX || e.touches[0].pageX) - all_scenesViewport.offsetLeft;
+                const walk = (x - all_scenestartX) * 2; // scroll-fast
+                all_scenesViewport.scrollLeft = scrollLeft - walk;
+            };
+
+            // We remove previous listeners to avoid duplicates if this function is called multiple times
+            all_scenesViewport.removeEventListener('mousedown', startSceneDrag);
+            all_scenesViewport.removeEventListener('mouseleave', stopSceneDrag);
+            all_scenesViewport.removeEventListener('mouseup', stopSceneDrag);
+            all_scenesViewport.removeEventListener('mousemove', doSceneDrag);
+            all_scenesViewport.removeEventListener('touchstart', startSceneDrag);
+            all_scenesViewport.removeEventListener('touchend', stopSceneDrag);
+            all_scenesViewport.removeEventListener('touchmove', doSceneDrag);
+            
+            all_scenesViewport.addEventListener('mousedown', startSceneDrag);
+            all_scenesViewport.addEventListener('mouseleave', stopSceneDrag);
+            all_scenesViewport.addEventListener('mouseup', stopSceneDrag);
+            all_scenesViewport.addEventListener('mousemove', doSceneDrag);
+
+            all_scenesViewport.addEventListener('touchstart', startSceneDrag, { passive: false });
+            all_scenesViewport.addEventListener('touchend', stopSceneDrag);
+            all_scenesViewport.addEventListener('touchmove', doSceneDrag, { passive: false });
+
+            console.log('=== SHOW all_scenes GALLERY ENDE ===');
+        }
+        
+        function renderall_scenes() {
+            console.log('=== RENDER all_scenes START ===');
+            const all_scenesContainer = document.getElementById('all_scenesContainer');
+            if (!all_scenesContainer) {
+                console.error('all_scenesContainer nicht gefunden!');
+                return;
+            }
+            
+            console.log('Rendering', all_scenesData.length, 'scenes');
+            all_scenesContainer.innerHTML = '';
+            
+            all_scenesData.forEach((scene, index) => {
+                const sceneCard = document.createElement('div');
+                sceneCard.className = `scene-card p-3`;
+                
+                const firstScreenshot = scene.screenshots && scene.screenshots.length > 0 ? scene.screenshots[0] : null;
+                
+                                sceneCard.innerHTML = `
+                    <div class="flex flex-col gap-2 h-full">
+                                                        <video 
+                                    src="/videos/separated/${scene.video_url ? scene.video_url.replace('separated/', '') : 'placeholder.mp4'}" 
+                                    poster="${firstScreenshot ? firstScreenshot.url : '/static/placeholder.jpg'}"
+                                    controls 
+                                    class="scene-image w-full h-24 object-cover rounded-lg"
+                                    preload="metadata">
+                                    <source src="/videos/separated/${scene.video_url ? scene.video_url.replace('separated/', '') : 'placeholder.mp4'}" type="video/mp4">
+                                </video>
+                        <div class="text-center">
+                            <div class="text-xs text-white/80">Scene ${scene.scene}</div>
+                            <div class="text-xs text-white/60">${scene.start_time} - ${scene.end_time}</div>
+                        </div>
+                    </div>
+                `;
+
+                sceneCard.addEventListener('click', (event) => {
+                    playScene(scene.start_time, scene.end_time, event.currentTarget);
+                });
+                
+                all_scenesContainer.appendChild(sceneCard);
+            });
+            
+            // Setup auto-highlighting for normal video playback
+            setupAutoHighlighting();
+            
+            console.log('=== RENDER all_scenes ENDE ===');
+        }
+        
+        function timeStringToSeconds(timeStr) {
+            if (!timeStr || typeof timeStr !== 'string') return 0;
+            const [hms, ms] = timeStr.split('.');
+            if (!hms) return 0;
+            const [hours, minutes, seconds] = hms.split(':').map(Number);
+            const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+            return ms ? totalSeconds + (Number(ms) / 1000) : totalSeconds;
+        }
+
+        function scrollSceneIntoView(sceneCard) {
+            if (sceneCard) {
+                sceneCard.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
+        }
+
+        function setupAutoHighlighting() {
+            const video = document.getElementById('originalVideoPlayer');
+            if (!video || !all_scenesData || all_scenesData.length === 0) return;
+
+            // Remove previous listener if it exists
+            if (autoHighlightListener) {
+                video.removeEventListener('timeupdate', autoHighlightListener);
+            }
+
+            // Create new auto-highlighting listener
+            autoHighlightListener = () => {
+                const currentTime = video.currentTime;
+                let newActiveSceneIndex = -1;
+
+                // Find which scene is currently playing
+                for (let i = 0; i < all_scenesData.length; i++) {
+                    const scene = all_scenesData[i];
+                    const startTime = timeStringToSeconds(scene.start_time);
+                    const endTime = timeStringToSeconds(scene.end_time);
+                    
+                    if (currentTime >= startTime && currentTime <= endTime) {
+                        newActiveSceneIndex = i;
+                        break;
+                    }
+                }
+
+                const sceneCards = document.querySelectorAll('.scene-card');
+                const currentActiveCard = document.querySelector('.scene-card.active');
+                const currentActiveIndex = currentActiveCard ? Array.from(sceneCards).indexOf(currentActiveCard) : -1;
+
+                if (newActiveSceneIndex !== currentActiveIndex) {
+                    if (currentActiveCard) {
+                        currentActiveCard.classList.remove('active');
+                    }
+
+                    if (newActiveSceneIndex !== -1) {
+                        const newActiveCard = sceneCards[newActiveSceneIndex];
+                        if (newActiveCard) {
+                            newActiveCard.classList.add('active');
+                            scrollSceneIntoView(newActiveCard);
+                        }
+                    }
+                }
+            };
+
+            video.addEventListener('timeupdate', autoHighlightListener);
+        }
+
+        function playScene(startTimeStr, endTimeStr, clickedCard) {
+            const video = document.getElementById('originalVideoPlayer');
+            if (!video) {
+                console.error("Original video player not found!");
+                return;
+            }
+
+            const startTime = timeStringToSeconds(startTimeStr);
+            const endTime = timeStringToSeconds(endTimeStr);
+
+            // Highlight active scene and scroll into view
+            document.querySelectorAll('.scene-card.active').forEach(card => {
+                card.classList.remove('active');
+            });
+            if (clickedCard) {
+                clickedCard.classList.add('active');
+                scrollSceneIntoView(clickedCard);
+            }
+
+            // Remove previous playback-specific listener if it exists
+            if (sceneEndListener) {
+                video.removeEventListener('timeupdate', sceneEndListener);
+            }
+
+            // Temporarily disable the general auto-highlighting listener to avoid conflicts
+            if (autoHighlightListener) {
+                video.removeEventListener('timeupdate', autoHighlightListener);
+            }
+            
+            video.pause();
+
+            // Define the new listener to stop playback at the end of the scene
+            sceneEndListener = () => {
+                if (video.currentTime >= endTime) {
+                    video.pause();
+                    video.removeEventListener('timeupdate', sceneEndListener);
+                    sceneEndListener = null;
+                    if (clickedCard) {
+                        clickedCard.classList.remove('active');
+                    }
+                    // Re-enable auto-highlighting after scene-specific playback ends
+                    setupAutoHighlighting();
+                }
+            };
+
+            video.currentTime = startTime;
+            video.play().catch(e => console.error("Error playing video:", e));
+            video.addEventListener('timeupdate', sceneEndListener);
+        }
+        
+        function renderScenesList() {
+            const container = document.getElementById('scenesList');
+            if (!container) return;
+            container.innerHTML = '';
+            if (!allScenes.length) {
+                container.innerHTML = '<div class="text-white/60 text-center">No scenes detected yet...</div>';
+                return;
+            }
+            
+            console.log('Rendering scenes:', allScenes);
+            console.log('Combined scenes:', allScenes.filter(s => s.is_combined));
+            
+            allScenes.forEach(scene => {
+                console.log('Rendering scene:', scene.scene || scene.scene_number, 'is_combined:', scene.is_combined, 'sub_scenes:', scene.sub_scenes);
+                const sceneCard = document.createElement('div');
+                sceneCard.className = 'scene-card bg-white/5 rounded-xl p-6 border border-white/10 mb-4' + (scene.is_combined ? ' combined-scene-card' : '');
+                sceneCard.dataset.sceneId = scene.scene || scene.scene_number;
+                
+                sceneCard.innerHTML = `
+                    <div class="flex flex-col gap-4">
+                        <!-- Scene Selection Checkbox -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" 
+                                       id="sceneCheck_${scene.scene || scene.scene_number}" 
+                                       class="scene-checkbox hidden glassmorph-checkbox" 
+                                       onchange="updateSceneSelection()">
+                                <label for="sceneCheck_${scene.scene || scene.scene_number}" 
+                                       class="scene-checkbox-label hidden cursor-pointer">
+                                    <div class="glassmorph-checkbox-custom"></div>
+                                </label>
+                            </div>
+                            <div class="text-sm text-white/60">Scene ${scene.scene || scene.scene_number}</div>
+                        </div>
+                        
+                        <!-- Top Section: Video + Info (50/50) -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <!-- Video Player -->
+                            <div class="flex flex-col">
+                                <video 
+                                    src="/videos/separated/${scene.video_url ? scene.video_url.replace('separated/', '') : 'placeholder.mp4'}" 
+                                    poster="${(scene.screenshots && scene.screenshots[0] && scene.screenshots[0].url) || '/static/placeholder.jpg'}"
+                                    controls 
+                                    class="w-full h-40 object-cover rounded-lg"
+                                    preload="metadata">
+                                    <source src="/videos/separated/${scene.video_url ? scene.video_url.replace('separated/', '') : 'placeholder.mp4'}" type="video/mp4">
+                                    Your browser does not support video playback.
+                                </video>
+                            </div>
+                            
+                            <!-- Scene Information -->
+                            <div class="flex flex-col gap-2">
+                                <div class="text-lg font-bold text-white">Scene ${scene.scene || scene.scene_number}</div>
+                                
+                                <!-- Time Info -->
+                                <div class="flex gap-4 text-sm text-white/80">
+                                    <div class="flex items-center gap-1">
+                                        <span class="material-icons text-white/60" style="font-size:1rem;">play_arrow</span>
+                                        <span class="text-white/60">Start:</span> ${scene.start_time || '00:00:00'}
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <span class="material-icons text-white/60" style="font-size:1rem;">stop</span>
+                                        <span class="text-white/60">End:</span> ${scene.end_time || '00:00:00'}
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <span class="material-icons text-white/60" style="font-size:1rem;">schedule</span>
+                                        <span class="text-white/60">Duration:</span> ${scene.duration || '0s'}
+                                    </div>
+                                </div>
+                                
+                                <!-- Additional Info Dropdown -->
+                                <div class="mt-2">
+                                    <button onclick="toggleAdditionalInfo('${scene.scene || scene.scene_number}')" 
+                                            class="glassmorph-button flex items-center gap-1 text-xs text-white/60 hover:text-white/80 transition-colors border-none cursor-pointer px-3 py-1 rounded-xl">
+                                        <span class="material-icons" style="font-size:1rem;">expand_more</span>
+                                        More information
+                                    </button>
+                                    <div id="additionalInfo_${scene.scene || scene.scene_number}" class="hidden mt-2 space-y-2">
+                                        <!-- Description -->
+                                        ${scene.description ? `
+                                            <div class="text-sm">
+                                                <span class="text-white/60 font-medium">Description:</span>
+                                                <div data-field="description" class="text-white/80 mt-1">${scene.description}</div>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        <!-- Emotional Tone -->
+                                        ${scene.emotional_tone ? `
+                                            <div class="text-sm">
+                                                <span class="text-white/60 font-medium">Emotional tone:</span>
+                                                <div data-field="emotional_tone" class="text-white/80 mt-1">${scene.emotional_tone}</div>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        <!-- Narrative Role -->
+                                        ${scene.narrative_role ? `
+                                            <div class="text-sm">
+                                                <span class="text-white/60 font-medium">Narrative role:</span>
+                                                <div data-field="narrative_role" class="text-white/80 mt-1">${scene.narrative_role}</div>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        <!-- Visual Elements -->
+                                        ${scene.visual_elements ? `
+                                            <div class="text-sm">
+                                                <span class="text-white/60 font-medium">Visual elements:</span>
+                                                <div data-field="visual_elements" class="text-white/80 mt-1">${scene.visual_elements}</div>
+                                            </div>
+                                        ` : ''}
+                                        
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bottom Section: Transcript/New Text/Avatar (33/33/33) -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <!-- Transcript -->
+                            <div class="flex flex-col">
+                                <div class="text-xs text-white/60 mb-2 font-medium">Original text</div>
+                                <div id="originalText_${scene.scene || scene.scene_number}" class="text-sm text-white/80 bg-white/5 p-3 rounded-lg min-h-[80px]">
+                                    ${scene.transcript || '<i>Kein Text verfügbar</i>'}
+                                </div>
+                            </div>
+                            
+                            <!-- New Text -->
+                            <div class="flex flex-col">
+                                <div class="text-xs text-white/60 mb-2 font-medium">New text</div>
+                                <div class="flex flex-col gap-2">
+                                    <div class="text-sm text-white/80 bg-white/5 p-3 rounded-lg min-h-[80px] border border-white/10" id="newText_${scene.scene || scene.scene_number}">
+                                        ${scene.new_text || '<i>Noch kein Text eingegeben</i>'}
+                                    </div>
+                                    <button onclick="openTextEditModal('${scene.scene || scene.scene_number}')" 
+                                            class="glassmorph-button px-3 py-1 rounded-full text-xs text-white self-start">
+                                        <span class="material-icons" style="font-size:1rem;">edit</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Voice Controls -->
+                            <div class="flex flex-col items-center gap-3 relative">
+                                <!-- Avatar -->
+                                <div id="voiceAvatar_${scene.scene || scene.scene_number}" class="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                    ${scene.selected_voice_name ? scene.selected_voice_name.charAt(0).toUpperCase() : 'S'}
+                                </div>
+                                
+                                <!-- Voice Name -->
+                                <div class="text-xs text-white/80 text-center">
+                                    <div class="font-medium" id="voiceName_${scene.scene || scene.scene_number}">${scene.selected_voice_name || 'Default voice'}</div>
+                                </div>
+                                
+                                <!-- Buttons -->
+                                <div class="flex gap-2">
+                                    <button onclick="event.stopPropagation(); toggleVoiceOverlay('${scene.scene || scene.scene_number}')" 
+                                            class="glassmorph-button w-8 h-8 rounded-full text-white flex items-center justify-center">
+                                        <span class="material-icons" style="font-size:1rem;">mic</span>
+                                    </button>
+                                    <button onclick="playScene('${scene.scene || scene.scene_number}')" 
+                                            class="glassmorph-button w-8 h-8 rounded-full text-white bg-primary flex items-center justify-center">
+                                        <span class="material-icons" style="font-size:1rem;">play_arrow</span>
+                                    </button>
+                                </div>
+                                
+                                <!-- Voice Overlay -->
+                                <div id="voiceOverlay_${scene.scene || scene.scene_number}" class="voice-overlay">
+                                    <div class="voice-overlay-header">
+                                        <div class="voice-overlay-title">Select voice</div>
+                                        <button class="voice-overlay-close" onclick="closeVoiceOverlay('${scene.scene || scene.scene_number}')">
+                                            <span class="material-icons" style="font-size:1rem;">close</span>
+                                        </button>
+                                    </div>
+                                    <div id="voiceList_${scene.scene || scene.scene_number}" class="space-y-2">
+                                        <div class="text-center text-white/60 text-sm">Loading voices...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sub-scenes for combined scenes -->
+                        ${scene.is_combined && scene.sub_scenes ? `
+                            <!-- DEBUG: Sub-scenes rendered for scene ${scene.scene} -->
+                            <!-- DEBUG: is_combined=${scene.is_combined}, sub_scenes.length=${scene.sub_scenes ? scene.sub_scenes.length : 0} -->
+                            <div class="mt-6">
+                                <button onclick="toggleSubScenes('${scene.scene || scene.scene_number}')" 
+                                        class="glassmorph-button flex items-center gap-1 text-sm text-white/60 hover:text-white/80 transition-colors border-none cursor-pointer px-3 py-1 rounded-xl mb-3">
+                                    <span class="material-icons" style="font-size:1rem;">expand_more</span>
+                                    Show sub-scenes (${scene.sub_scenes.length})
+                                </button>
+                                <div id="subScenes_${scene.scene || scene.scene_number}" class="hidden space-y-2">
+                                    ${scene.sub_scenes.map(subScene => `
+                                        <div class="flex items-center gap-4 p-3 bg-white/5 rounded-xl border border-white/10">
+                                            <div class="flex-shrink-0">
+                                                <img src="${(subScene.screenshots && subScene.screenshots[0] && subScene.screenshots[0].url) || '/static/placeholder.jpg'}" 
+                                                     alt="Scene ${subScene.scene || subScene.scene_number}" 
+                                                     class="w-64 h-auto object-cover rounded-lg" style="max-width: 250px;">
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="font-medium text-white/90 text-lg">Scene ${subScene.scene || subScene.scene_number}</div>
+                                                <div class="text-sm text-white/60">${subScene.start_time} - ${subScene.end_time}</div>
+                                                <div class="text-sm text-white/70 mt-2">${subScene.transcript || 'Kein Text'}</div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                container.appendChild(sceneCard);
+            });
+        }
+
+        // Modal Functions
+        let currentEditingScene = null;
+        
+        function openTextEditModal(sceneNumber) {
+            currentEditingScene = sceneNumber;
+            const modal = document.getElementById('textEditModal');
+            const modalSceneNumber = document.getElementById('modalSceneNumber');
+            const modalTextInput = document.getElementById('modalTextInput');
+            
+            // Find current text for this scene
+            const scene = allScenes.find(s => (s.scene || s.scene_number) === sceneNumber);
+            const currentText = scene ? (scene.new_text || '') : '';
+            
+            modalSceneNumber.textContent = sceneNumber;
+            modalTextInput.value = currentText;
+            modal.classList.remove('hidden');
+            
+            // Focus on text input
+            setTimeout(() => modalTextInput.focus(), 100);
+        }
+        
+        function closeTextEditModal() {
+            const modal = document.getElementById('textEditModal');
+            modal.classList.add('hidden');
+            currentEditingScene = null;
+        }
+        
+        function updateSceneText() {
+            if (!currentEditingScene) return;
+            
+            const modalTextInput = document.getElementById('modalTextInput');
+            const newText = modalTextInput.value.trim();
+            
+            // Update the scene data
+            const sceneIndex = allScenes.findIndex(s => (s.scene || s.scene_number) === currentEditingScene);
+            if (sceneIndex !== -1) {
+                allScenes[sceneIndex].new_text = newText;
+                
+                // Update the display
+                const textElement = document.getElementById(`newText_${currentEditingScene}`);
+                if (textElement) {
+                    textElement.innerHTML = newText || '<i>Noch kein Text eingegeben</i>';
+                }
+            }
+            
+            closeTextEditModal();
+        }
+        
+        function editVoice(sceneNumber) {
+            // Placeholder for voice editing
+            alert(`Voice editing for scene ${sceneNumber} - not implemented yet`);
+        }
+        
+        function playScene(sceneNumber) {
+            // Placeholder for scene playback
+            alert(`Playing scene ${sceneNumber} - not implemented yet`);
+        }
+        
+        function toggleAdditionalInfo(sceneNumber) {
+            const infoDiv = document.getElementById(`additionalInfo_${sceneNumber}`);
+            const button = infoDiv.previousElementSibling;
+            const icon = button.querySelector('.material-icons');
+            
+            if (infoDiv.classList.contains('hidden')) {
+                infoDiv.classList.remove('hidden');
+                icon.textContent = 'expand_less';
+            } else {
+                infoDiv.classList.add('hidden');
+                icon.textContent = 'expand_more';
+            }
+        }
+        
+        function toggleSubScenes(sceneNumber) {
+            console.log('toggleSubScenes called with:', sceneNumber);
+            const subScenesDiv = document.getElementById(`subScenes_${sceneNumber}`);
+            console.log('subScenesDiv:', subScenesDiv);
+            
+            if (!subScenesDiv) {
+                console.error('Sub-scenes container not found for:', sceneNumber);
+                return;
+            }
+            
+            const button = subScenesDiv.previousElementSibling;
+            const icon = button.querySelector('.material-icons');
+            
+            if (subScenesDiv.classList.contains('hidden')) {
+                subScenesDiv.classList.remove('hidden');
+                icon.textContent = 'expand_less';
+            } else {
+                subScenesDiv.classList.add('hidden');
+                icon.textContent = 'expand_more';
+            }
+        }
+        
+        // Scene combination functions
+        let sceneSelectionMode = false;
+        let selectedScenes = [];
+        
+        function toggleSceneSelection() {
+            sceneSelectionMode = !sceneSelectionMode;
+            const controls = document.getElementById('sceneSelectionControls');
+            const checkboxes = document.querySelectorAll('.scene-checkbox');
+            const labels = document.querySelectorAll('.scene-checkbox-label');
+            const combinationControls = document.getElementById('sceneCombinationControls');
+            const fixedControls = document.getElementById('fixedSceneCombinationControls');
+            const fixedSelectionControls = document.getElementById('fixedSceneSelectionControls');
+            
+            if (sceneSelectionMode) {
+                if (combinationControls) combinationControls.classList.add('hidden');
+                if (fixedControls) fixedControls.classList.add('active');
+                if (fixedSelectionControls) fixedSelectionControls.classList.remove('hidden');
+                checkboxes.forEach(cb => cb.classList.remove('hidden'));
+                labels.forEach(label => label.classList.remove('hidden'));
+            } else {
+                if (combinationControls) combinationControls.classList.remove('hidden');
+                if (fixedControls) fixedControls.classList.remove('active');
+                if (fixedSelectionControls) fixedSelectionControls.classList.add('hidden');
+                checkboxes.forEach(cb => {
+                    cb.classList.add('hidden');
+                    cb.checked = false;
+                });
+                labels.forEach(label => label.classList.add('hidden'));
+                selectedScenes = [];
+            }
+        }
+        
+        function selectAllScenes() {
+            const checkboxes = document.querySelectorAll('.scene-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = true;
+            });
+            updateSceneSelection();
+        }
+        
+        function deselectAllScenes() {
+            const checkboxes = document.querySelectorAll('.scene-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+            });
+            updateSceneSelection();
+        }
+        
+        function updateSceneSelection() {
+            selectedScenes = [];
+            const checkboxes = document.querySelectorAll('.scene-checkbox:checked');
+            checkboxes.forEach(cb => {
+                const sceneId = cb.id.replace('sceneCheck_', '');
+                selectedScenes.push(parseInt(sceneId));
+            });
+            selectedScenes.sort((a, b) => a - b);
+        }
+        
+        function updateCheckboxIcons() {
+            // Diese Funktion ist nicht mehr nötig, da die Checkbox-Styles über CSS gehandhabt werden
+            // Die Glassmorphism-Checkbox zeigt den Zustand automatisch an
+        }
+        
+        function combineSelectedScenes() {
+            if (selectedScenes.length < 2) {
+                alert('Bitte wähle mindestens 2 Szenen aus, um sie zusammenzufassen.');
+                return;
+            }
+            
+            // Check if scenes are consecutive
+            for (let i = 1; i < selectedScenes.length; i++) {
+                if (selectedScenes[i] !== selectedScenes[i-1] + 1) {
+                    alert('Bitte wähle nur aufeinanderfolgende Szenen aus.');
+                    return;
+                }
+            }
+            
+            // Erstelle zusammengefasste Szene
+            const combinedScene = createCombinedScene(selectedScenes);
+            
+            // Replace selected scenes with the combined scene
+            replaceScenesWithCombined(selectedScenes, combinedScene);
+            
+            // Beende Auswahlmodus
+            toggleSceneSelection();
+        }
+        
+        function createCombinedScene(selectedSceneIds) {
+            const scenes = selectedSceneIds.map(id => 
+                allScenes.find(scene => (scene.scene || scene.scene_number) === id)
+            ).filter(Boolean);
+            
+            if (scenes.length === 0) return null;
+            
+            const firstScene = scenes[0];
+            const lastScene = scenes[scenes.length - 1];
+            
+            // Berechne neue Zeiten
+            const startTime = firstScene.start_time || '00:00:00';
+            const endTime = lastScene.end_time || '00:00:00';
+            const duration = calculateDuration(startTime, endTime);
+            
+            // Kombiniere Texte
+            const originalTexts = scenes.map(s => s.transcript || '').filter(t => t.trim());
+            const newTexts = scenes.map(s => s.new_text || '').filter(t => t.trim());
+            
+            const combinedOriginalText = originalTexts.join(' ');
+            const combinedNewText = newTexts.join(' ');
+            
+            const combinedScene = {
+                scene: `combined_${selectedSceneIds[0]}_${selectedSceneIds[selectedSceneIds.length - 1]}`,
+                scene_number: `combined_${selectedSceneIds[0]}_${selectedSceneIds[selectedSceneIds.length - 1]}`,
+                start_time: startTime,
+                end_time: endTime,
+                duration: duration,
+                video_url: firstScene.video_url, // Use video of the first scene
+                screenshots: firstScene.screenshots, // Use screenshots of the first scene
+                transcript: combinedOriginalText,
+                new_text: combinedNewText,
+                description: `Combined scene from ${scenes.length} individual scenes`,
+                emotional_tone: scenes.map(s => s.emotional_tone).filter(Boolean).join(', '),
+                narrative_role: scenes.map(s => s.narrative_role).filter(Boolean).join(', '),
+                visual_elements: scenes.map(s => s.visual_elements).filter(Boolean).join(', '),
+                is_combined: true,
+                sub_scenes: scenes
+            };
+            
+            console.log('Combined scene created:', combinedScene);
+            return combinedScene;
+        }
+        
+        function calculateDuration(startTime, endTime) {
+            const start = timeStringToSeconds(startTime);
+            const end = timeStringToSeconds(endTime);
+            const duration = end - start;
+            
+            const hours = Math.floor(duration / 3600);
+            const minutes = Math.floor((duration % 3600) / 60);
+            const seconds = Math.floor(duration % 60);
+            
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+        
+        function replaceScenesWithCombined(selectedIds, combinedScene) {
+            // Find position of the first selected scene
+            const firstSelectedIndex = allScenes.findIndex(scene => 
+                (scene.scene || scene.scene_number) === selectedIds[0]
+            );
+            
+            if (firstSelectedIndex === -1) {
+                console.error('First selected scene not found');
+                return;
+            }
+            
+            // Remove selected scenes from allScenes
+            allScenes = allScenes.filter(scene => 
+                !selectedIds.includes(scene.scene || scene.scene_number)
+            );
+            
+            // Insert combined scene at the original position
+            allScenes.splice(firstSelectedIndex, 0, combinedScene);
+            
+            // Re-render scenes
+            renderScenesList();
+        }
+        
+        function updateScenesData(newScenes) {
+            // Aktualisiere nur die Daten, ohne das UI neu zu rendern
+            // Diese Funktion wird während des Pollings aufgerufen
+            
+            // Create a map of original scenes for fast access
+            const originalScenesMap = new Map();
+            newScenes.forEach(scene => {
+                const sceneId = scene.scene || scene.scene_number;
+                originalScenesMap.set(sceneId, scene);
+            });
+            
+            // Update only non-combined scenes
+            allScenes.forEach((existingScene, index) => {
+                if (!existingScene.is_combined) {
+                    const sceneId = existingScene.scene || existingScene.scene_number;
+                    const newScene = originalScenesMap.get(sceneId);
+                    
+                    if (newScene) {
+                        // Aktualisiere nur die Daten, nicht das UI
+                        Object.assign(existingScene, {
+                            transcript: newScene.transcript || existingScene.transcript,
+                            new_text: newScene.new_text || existingScene.new_text,
+                            description: newScene.description || existingScene.description,
+                            emotional_tone: newScene.emotional_tone || existingScene.emotional_tone,
+                            narrative_role: newScene.narrative_role || existingScene.narrative_role,
+                            visual_elements: newScene.visual_elements || existingScene.visual_elements
+                        });
+                        
+                        // Aktualisiere nur die Text-Anzeigen, nicht die gesamte Karte
+                        updateSceneTextDisplay(existingScene);
+                    }
+                }
+            });
+            
+            // Add new scenes that are not yet in allScenes
+            newScenes.forEach(newScene => {
+                const sceneId = newScene.scene || newScene.scene_number;
+                const existingScene = allScenes.find(scene => 
+                    (scene.scene || scene.scene_number) === sceneId
+                );
+                
+                if (!existingScene) {
+                    // Add new scene
+                    allScenes.push(newScene);
+                    // UI neu rendern, da sich die Anzahl geändert hat
+                    renderScenesList();
+                }
+            });
+        }
+        
+        function updateSceneTextDisplay(scene) {
+            const sceneId = scene.scene || scene.scene_number;
+            
+            // Aktualisiere nur die Text-Anzeigen
+            const originalTextElement = document.querySelector(`#originalText_${sceneId}`);
+            if (originalTextElement) {
+                originalTextElement.innerHTML = scene.transcript || '<i>Kein Text verfügbar</i>';
+            }
+            
+            const newTextElement = document.querySelector(`#newText_${sceneId}`);
+            if (newTextElement) {
+                newTextElement.innerHTML = scene.new_text || '<i>Noch kein Text eingegeben</i>';
+            }
+            
+            // Aktualisiere die zusätzlichen Informationen im Dropdown
+            const additionalInfoElement = document.getElementById(`additionalInfo_${sceneId}`);
+            if (additionalInfoElement && !additionalInfoElement.classList.contains('hidden')) {
+                updateAdditionalInfoDisplay(scene);
+            }
+        }
+        
+        function updateAdditionalInfoDisplay(scene) {
+            const sceneId = scene.scene || scene.scene_number;
+            const infoDiv = document.getElementById(`additionalInfo_${sceneId}`);
+            if (!infoDiv) return;
+            
+            // Aktualisiere nur die Inhalte, nicht die Struktur
+            const descriptionElement = infoDiv.querySelector('[data-field="description"]');
+            if (descriptionElement && scene.description) {
+                descriptionElement.innerHTML = scene.description;
+            }
+            
+            const emotionalToneElement = infoDiv.querySelector('[data-field="emotional_tone"]');
+            if (emotionalToneElement && scene.emotional_tone) {
+                emotionalToneElement.innerHTML = scene.emotional_tone;
+            }
+            
+            const narrativeRoleElement = infoDiv.querySelector('[data-field="narrative_role"]');
+            if (narrativeRoleElement && scene.narrative_role) {
+                narrativeRoleElement.innerHTML = scene.narrative_role;
+            }
+            
+            const visualElementsElement = infoDiv.querySelector('[data-field="visual_elements"]');
+            if (visualElementsElement && scene.visual_elements) {
+                visualElementsElement.innerHTML = scene.visual_elements;
+            }
+        }
+
+        console.log('Video lip-sync upload interface loaded');
+
+        // ElevenLabs Voice Integration
+        let elevenLabsVoices = [];
+        let currentVoiceOverlay = null;
+        
+        async function loadElevenLabsVoices() {
+            try {
+                const response = await fetch('/elevenlabs/voices');
+                if (response.ok) {
+                    elevenLabsVoices = await response.json();
+                    console.log('ElevenLabs voices loaded:', elevenLabsVoices.length);
+                } else {
+                    console.error('Error loading voices');
+                }
+            } catch (error) {
+                console.error('Error loading ElevenLabs voices:', error);
+            }
+        }
+        
+        function toggleVoiceOverlay(sceneNumber) {
+            console.log('toggleVoiceOverlay called with sceneNumber:', sceneNumber);
+            
+            const overlay = document.getElementById(`voiceOverlay_${sceneNumber}`);
+            console.log('Found overlay element:', overlay);
+            
+            if (!overlay) {
+                console.error('Voice overlay not found for scene:', sceneNumber);
+                return;
+            }
+            
+            const isActive = overlay.classList.contains('active');
+            console.log('Overlay is currently active:', isActive);
+            
+            // Close any other open overlay
+            if (currentVoiceOverlay && currentVoiceOverlay !== overlay) {
+                console.log('Closing other overlay');
+                currentVoiceOverlay.classList.remove('active');
+            }
+            
+            if (isActive) {
+                console.log('Closing overlay');
+                overlay.classList.remove('active');
+                currentVoiceOverlay = null;
+            } else {
+                console.log('Opening overlay');
+                overlay.classList.add('active');
+                currentVoiceOverlay = overlay;
+                
+                // Load voices if not already loaded
+                if (elevenLabsVoices.length === 0) {
+                    console.log('Loading voices...');
+                    loadElevenLabsVoices().then(() => {
+                        console.log('Voices loaded, rendering list');
+                        renderVoiceList(sceneNumber);
+                    });
+                } else {
+                    console.log('Voices already loaded, rendering list');
+                    renderVoiceList(sceneNumber);
+                }
+            }
+            
+            // Debug: Check final state with longer delay
+            setTimeout(() => {
+                console.log('Final overlay state - active:', overlay.classList.contains('active'));
+                console.log('Final overlay opacity:', window.getComputedStyle(overlay).opacity);
+                console.log('Final overlay visibility:', window.getComputedStyle(overlay).visibility);
+                console.log('Current voice overlay:', currentVoiceOverlay);
+            }, 300);
+        }
+        
+        function closeVoiceOverlay(sceneNumber) {
+            const overlay = document.getElementById(`voiceOverlay_${sceneNumber}`);
+            overlay.classList.remove('active');
+            currentVoiceOverlay = null;
+        }
+        
+        function renderVoiceList(sceneNumber) {
+            const voiceList = document.getElementById(`voiceList_${sceneNumber}`);
+            const currentVoice = getCurrentVoiceForScene(sceneNumber);
+            
+            voiceList.innerHTML = elevenLabsVoices.map(voice => `
+                <div class="voice-item ${currentVoice === voice.voice_id ? 'selected' : ''}" 
+                     data-voice-id="${voice.voice_id}">
+                    <div class="voice-avatar">
+                        ${voice.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="voice-info">
+                        <div class="voice-name">${voice.name}</div>
+                        <div class="voice-details">
+                            ${voice.labels?.gender || 'Unbekannt'} • ${voice.labels?.age || 'Unbekannt'}
+                            ${voice.labels?.accent ? `• ${voice.labels.accent}` : ''}
+                        </div>
+                    </div>
+                    <div class="voice-actions">
+                        <button class="voice-preview-btn" onclick="previewVoice('${voice.voice_id}')" title="Preview">
+                            <span class="material-icons" style="font-size:1rem;">play_arrow</span>
+                        </button>
+                        <button class="voice-select-btn" onclick="selectVoice('${sceneNumber}', '${voice.voice_id}', '${voice.name}')">
+                            ${currentVoice === voice.voice_id ? 'Selected' : 'Select'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function getCurrentVoiceForScene(sceneNumber) {
+            const scene = allScenes.find(s => (s.scene || s.scene_number) === sceneNumber);
+            return scene?.selected_voice_id || null;
+        }
+        
+        async function previewVoice(voiceId) {
+            try {
+                const response = await fetch('/elevenlabs/preview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        voice_id: voiceId,
+                        text: 'Hello, this is a preview of this voice.'
+                    })
+                });
+                
+                if (response.ok) {
+                    const audioBlob = await response.blob();
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = new Audio(audioUrl);
+                    audio.play();
+                } else {
+                    console.error('Voice preview failed');
+                    alert('Preview could not be generated.');
+                }
+            } catch (error) {
+                console.error('Error during voice preview:', error);
+                alert('Error during voice preview.');
+            }
+        }
+        
+        function selectVoice(sceneNumber, voiceId, voiceName) {
+            console.log('selectVoice called:', sceneNumber, voiceId, voiceName);
+            console.log('Current allScenes:', allScenes);
+            console.log('Looking for scene with sceneNumber:', sceneNumber);
+            
+            // Update scene data - try multiple search strategies
+            let sceneIndex = allScenes.findIndex(s => (s.scene || s.scene_number) === sceneNumber);
+            
+            // If not found, try string comparison
+            if (sceneIndex === -1) {
+                sceneIndex = allScenes.findIndex(s => String(s.scene || s.scene_number) === String(sceneNumber));
+                console.log('String comparison scene index:', sceneIndex);
+            }
+            
+            // If still not found, try loose comparison
+            if (sceneIndex === -1) {
+                sceneIndex = allScenes.findIndex(s => {
+                    const sceneVal = s.scene || s.scene_number;
+                    return sceneVal == sceneNumber; // Loose comparison
+                });
+                console.log('Loose comparison scene index:', sceneIndex);
+            }
+            
+            console.log('Final scene index found:', sceneIndex);
+            
+            if (sceneIndex !== -1) {
+                allScenes[sceneIndex].selected_voice_id = voiceId;
+                allScenes[sceneIndex].selected_voice_name = voiceName;
+                
+                // Update display - Voice Name
+                const voiceNameElement = document.getElementById(`voiceName_${sceneNumber}`);
+                console.log('Voice name element found:', voiceNameElement);
+                if (voiceNameElement) {
+                    voiceNameElement.textContent = voiceName;
+                    console.log('Voice name updated to:', voiceName);
+                } else {
+                    console.error('Voice name element not found for scene:', sceneNumber);
+                }
+                
+                // Update display - Voice Avatar
+                const voiceAvatarElement = document.getElementById(`voiceAvatar_${sceneNumber}`);
+                console.log('Voice avatar element found:', voiceAvatarElement);
+                if (voiceAvatarElement) {
+                    voiceAvatarElement.textContent = voiceName.charAt(0).toUpperCase();
+                    console.log('Voice avatar updated to:', voiceName.charAt(0).toUpperCase());
+                } else {
+                    console.error('Voice avatar element not found for scene:', sceneNumber);
+                }
+                
+                // Update overlay
+                renderVoiceList(sceneNumber);
+                
+                console.log('Voice updated for scene', sceneNumber, 'to:', voiceName);
+            } else {
+                console.error('Scene not found for sceneNumber:', sceneNumber);
+                console.log('Available scenes:', allScenes.map(s => ({ scene: s.scene, scene_number: s.scene_number })));
+            }
+            
+            // Close overlay after selection
+            setTimeout(() => {
+                closeVoiceOverlay(sceneNumber);
+            }, 500);
+        }
+        
+        // Close overlay when clicking outside
+        document.addEventListener('click', function(event) {
+            if (currentVoiceOverlay && !currentVoiceOverlay.contains(event.target)) {
+                // Check if the click was on the voice button itself
+                const voiceButton = event.target.closest('button[onclick*="toggleVoiceOverlay"]');
+                if (!voiceButton) {
+                    const sceneNumber = currentVoiceOverlay.id.replace('voiceOverlay_', '');
+                    closeVoiceOverlay(sceneNumber);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

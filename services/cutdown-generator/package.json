@@ -1,0 +1,13 @@
+{
+  "name": "upload-service-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -c tailwind.config.js -i ./templates/input.css -o ./static/tailwind.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.21",
+    "autoprefixer": "^10.4.14"
+  }
+} 

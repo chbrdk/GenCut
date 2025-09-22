@@ -1,0 +1,32 @@
+{
+	auto_https off
+	servers {
+		protocols h1
+	}
+}
+
+:5679 {
+	header {
+		Cache-Control no-cache
+	}
+
+	@static {
+		path /static/*
+		path /videos/*
+	}
+	handle @static {
+		root * /app
+		file_server
+	}
+
+	@favicon path /favicon.ico
+	handle @favicon {
+		root * /app/static
+		try_files {path} /favicon.ico
+		file_server
+	}
+
+	handle {
+		reverse_proxy gencut-frontend:5679
+	}
+}

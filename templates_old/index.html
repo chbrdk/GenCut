@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Upload</title>
+    <link href="/static/tailwind.css" rel="stylesheet">
+    <style>
+        body {
+            background: #000;
+            min-height: 100vh;
+            background-image: url('/static/bg-lights.jpg'); /* Optional: für den bunten Effekt, sonst entfernen */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .logo {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            width: 48px;
+            height: 48px;
+            z-index: 10;
+        }
+        .dropzone.dragover {
+            border-color: #7c3aed;
+            background: rgba(124, 58, 237, 0.08);
+        }
+    </style>
+</head>
+<body class="relative min-h-screen flex flex-col items-center justify-center">
+    <!-- Logo oben links -->
+    <img src="/static/logo.svg" alt="Logo" class="logo">
+
+    <!-- Glassmorphism Upload Panel -->
+    <div class="glassmorph-main max-w-2xl w-full mx-auto mt-24 p-10 rounded-[46px] text-white flex flex-col gap-8">
+        <div class="flex flex-col gap-2">
+            <span class="text-primary text-lg font-bold">Video Upload</span>
+            <h1 class="text-4xl font-light leading-tight">Ziehe dein Video hierher<br>oder wähle eine Datei aus</h1>
+        </div>
+        <form id="uploadForm" class="flex flex-col gap-6">
+            <!-- Dropzone -->
+            <div id="dropZone" class="dropzone flex items-center justify-center border-2 border-dashed border-white/20 rounded-[46px] min-h-[120px] cursor-pointer transition-all text-center px-6 py-8">
+                <div class="w-full">
+                    <svg class="mx-auto h-12 w-12 text-primary mb-2" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <p class="text-lg text-white/80">Datei hierher ziehen oder <span class="underline cursor-pointer text-primary" id="fileSelectText">Datei auswählen</span></p>
+                    <input type="file" id="fileInput" class="hidden" accept=".mp4,.avi,.mov,.mkv,.webm">
+                </div>
+            </div>
+            <!-- Dateiname & Fortschritt -->
+            <div id="fileInfo" class="hidden flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                    <span id="fileName" class="truncate text-white/90"></span>
+                    <button type="button" id="removeFile" class="text-secondary hover:text-primary text-lg">&times;</button>
+                </div>
+                <div id="uploadProgress" class="w-full bg-white/10 rounded-full h-2.5">
+                    <div id="progressBar" class="bg-primary h-2.5 rounded-full transition-all" style="width: 0%"></div>
+                </div>
+                <p id="progressText" class="text-xs text-white/60 text-right">0%</p>
+            </div>
+            <!-- Upload Button -->
+            <div class="flex justify-end">
+                <button type="submit" id="uploadButton" class="border border-primary rounded-full px-8 py-2 text-white bg-transparent hover:bg-primary/20 transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Hochladen <span class="text-xl">&gt;</span>
+                </button>
+            </div>
+            <div id="statusMessage" class="mt-2 text-center text-sm hidden"></div>
+        </form>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileSelectText = document.getElementById('fileSelectText');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const removeFile = document.getElementById('removeFile');
+        const uploadForm = document.getElementById('uploadForm');
+        const uploadButton = document.getElementById('uploadButton');
+        const uploadProgress = document.getElementById('uploadProgress');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const statusMessage = document.getElementById('statusMessage');
+
+        let selectedFile = null;
+
+        // Drag & Drop Events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+        dropZone.addEventListener('drop', handleDrop, false);
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileSelectText.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+        if (removeFile) removeFile.addEventListener('click', removeSelectedFile);
+        uploadForm.addEventListener('submit', handleUpload);
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        function highlight() {
+            dropZone.classList.add('dragover');
+        }
+        function unhighlight() {
+            dropZone.classList.remove('dragover');
+        }
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+        function handleFiles(files) {
+            if (files.length > 0) {
+                selectedFile = files[0];
+                updateFileInfo();
+            }
+        }
+        function updateFileInfo() {
+            if (selectedFile) {
+                fileName.textContent = selectedFile.name;
+                fileInfo.classList.remove('hidden');
+                uploadButton.disabled = false;
+            } else {
+                fileInfo.classList.add('hidden');
+                uploadButton.disabled = true;
+            }
+            progressBar.style.width = '0%';
+            progressText.textContent = '0%';
+        }
+        function removeSelectedFile() {
+            selectedFile = null;
+            fileInput.value = '';
+            updateFileInfo();
+        }
+        async function handleUpload(e) {
+            e.preventDefault();
+            if (!selectedFile) return;
+            const formData = new FormData();
+            formData.append('video', selectedFile);
+            uploadButton.disabled = true;
+            statusMessage.classList.add('hidden');
+            fileInfo.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            progressText.textContent = '0%';
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/upload', true);
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressBar.style.width = percentComplete + '%';
+                        progressText.textContent = Math.round(percentComplete) + '%';
+                    }
+                };
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        showStatus('Upload erfolgreich!', 'text-green-400');
+                        removeSelectedFile();
+                    } else {
+                        const response = JSON.parse(xhr.responseText);
+                        showStatus('Fehler: ' + (response.error || 'Unbekannter Fehler'), 'text-red-400');
+                    }
+                    uploadButton.disabled = false;
+                };
+                xhr.onerror = function() {
+                    showStatus('Netzwerkfehler beim Upload', 'text-red-400');
+                    uploadButton.disabled = false;
+                };
+                xhr.send(formData);
+            } catch (error) {
+                showStatus('Fehler beim Upload: ' + error.message, 'text-red-400');
+                uploadButton.disabled = false;
+            }
+        }
+        function showStatus(message, className) {
+            statusMessage.textContent = message;
+            statusMessage.className = 'mt-2 text-center text-sm ' + className;
+            statusMessage.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html> 

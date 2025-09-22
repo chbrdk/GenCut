@@ -1,0 +1,20 @@
+{
+  "color": {
+    "primary": "#7c3aed",
+    "secondary": "#f472b6",
+    "background": "#f3f4f6",
+    "surface": "#fff",
+    "text": "#1e293b"
+  },
+  "spacing": {
+    "xs": "4px",
+    "sm": "8px",
+    "md": "16px",
+    "lg": "32px"
+  },
+  "radius": {
+    "sm": "8px",
+    "md": "16px",
+    "xl": "46px"
+  }
+} 
